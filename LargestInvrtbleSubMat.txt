@@ -1,0 +1,144 @@
+gzero := proc (val, res) 
+if diff(val, a5) <> 0 then 
+return true: 
+else 
+return false: 
+end if:
+end proc:
+
+# The main procedure to be used for optimizing the size of the monomial basis.
+
+ReorderCoeffMatrix := proc (coeffMatrix, hiddenVar, monomialBasis, degreeHidVar) 
+local sizeOfMat, indexMatrix, i, j, flippedIndexMatrix, prodCoeffIndet, sortedCoeffIndet, ii, jj, colSortedCoeffIndet, modifiedCoeffMatrix, modifiedMonomialBasis, largestSize, temp, M11, M12, M21, M22, shortenedCoeffMatrix, shortenedMonomialBasis, coeffMatrix1, monomialBasis1, minimumReduction, iterationIndx, tempColSortedCoeffMat, range, sizesOfM22, sizesOfM12, interVarCnt, temp2s, arrayOfTemp2s, p, q:
+
+coeffMatrix1 := coeffMatrix:
+monomialBasis1 := monomialBasis:
+sizeOfMat := Size(coeffMatrix1)[1]:
+minimumReduction := 4:
+
+# We iterate multiple times to reordering of the coefficient matrix so as to group independent invertible matrices in the bottom right corner.
+for iterationIndx to 5 do 
+
+print(iterationIndx): 
+indexMatrix := Matrix(sizeOfMat, sizeOfMat, fill = 0):
+
+for i to sizeOfMat do 
+for j to sizeOfMat do 
+if coeffMatrix1[i, j] = 0 then 
+indexMatrix[i, j] := 1: 
+elif diff(coeffMatrix1[i, j], hiddenVar) = 0 and coeffMatrix1[i, j] <> 0 then 
+indexMatrix[i, j] := 2: 
+end if:
+end do:
+end do; 
+
+flippedIndexMatrix := Matrix(sizeOfMat, sizeOfMat, fill = 0); 
+
+for i to sizeOfMat do 
+flippedIndexMatrix[i, () .. ()] := indexMatrix[sizeOfMat-i+1, () .. ()]: 
+end do:
+
+prodCoeffIndet := Matrix(sizeOfMat, sizeOfMat, fill = 0):
+for j to sizeOfMat do 
+prodCoeffIndet[1, j] := flippedIndexMatrix[1, j]:
+for i from 2 to sizeOfMat do 
+# prodCoeffIndet[i, j] := (sizeOfMat - i + 2)*prodCoeffIndet[i-1, j]+(sizeOfMat - i + 2)*flippedIndexMatrix[i, j]:
+prodCoeffIndet[i, j] := prodCoeffIndet[i-1, j]*flippedIndexMatrix[i, j]:
+end do: 
+end do; 
+
+prodCoeffIndet := evalm(`&*`(Matrix(1, sizeOfMat, fill = 1), prodCoeffIndet)): 
+sortedCoeffIndet, jj := sort(convert(prodCoeffIndet, list)[1], 'output = [sorted, permutation]'): 
+
+#print(jj); 
+colSortedCoeffIndet := Matrix(sizeOfMat, sizeOfMat, fill = 0); 
+modifiedMonomialBasis := Matrix(sizeOfMat, 1, fill = 0); 
+tempColSortedCoeffMat := Matrix(sizeOfMat, sizeOfMat, fill = 0); 
+
+for j to sizeOfMat do 
+colSortedCoeffIndet[() .. (), j] := indexMatrix[() .. (), jj[j]]; 
+tempColSortedCoeffMat[() .. (), j] := coeffMatrix1[() .. (), jj[j]]; 
+modifiedMonomialBasis[j, 1] := monomialBasis1[jj[j]] 
+end do; 
+
+modifiedMonomialBasis := convert(modifiedMonomialBasis, list); 
+colSortedCoeffIndet := LinearAlgebra[Transpose](colSortedCoeffIndet); 
+flippedIndexMatrix := Matrix(sizeOfMat, sizeOfMat, fill = 0); 
+
+for i to sizeOfMat do 
+flippedIndexMatrix[i, () .. ()] := colSortedCoeffIndet[sizeOfMat-i+1, () .. ()]:
+end do; 
+
+prodCoeffIndet := Matrix(sizeOfMat, sizeOfMat, fill = 0); 
+
+for j to sizeOfMat do 
+prodCoeffIndet[1, j] := (sizeOfMat)*flippedIndexMatrix[1, j]: 
+for i from 2 to sizeOfMat do 
+prodCoeffIndet[i, j] := (sizeOfMat - i + 2)*prodCoeffIndet[i-1, j]+(sizeOfMat - i + 1)*flippedIndexMatrix[i, j]:
+#prodCoeffIndet[i, j] := prodCoeffIndet[i-1, j]*flippedIndexMatrix[i, j]:
+end do:
+end do:
+ 
+prodCoeffIndet := evalm(`&*`(Matrix(1, sizeOfMat, fill = 1), prodCoeffIndet)); 
+#print(prodCoeffIndet); 
+sortedCoeffIndet, ii := sort(convert(prodCoeffIndet, list)[1], 'output = [sorted, permutation]'):
+#print(sortedCoeffIndet); 
+#print(ii); 
+modifiedCoeffMatrix := Matrix(sizeOfMat, sizeOfMat, fill = 0); 
+
+for i to sizeOfMat do 
+for j to sizeOfMat do  
+end do; 
+modifiedCoeffMatrix[i, () .. ()] := tempColSortedCoeffMat[ii[i], () .. ()]:
+end do; 
+
+coeffMatrix1 := modifiedCoeffMatrix; 
+monomialBasis1 := modifiedMonomialBasis:
+
+end do:
+
+# We have obtained modifiedCoeffMatrix and modifiedMonomialBasis as the reoredered ones.
+
+print("Trying to find the largest invertible submatrix from the bottom right corner with independent values");
+largestSize := 0:
+for i from 1 to 1 do 
+    print("Trying out size ", i):
+    range := sizeOfMat - i + 1 :
+    temp := det(coeffMatrix1[range .. sizeOfMat, range .. sizeOfMat]): 
+    if not rtable_scanblock(coeffMatrix1[range .. sizeOfMat, range .. sizeOfMat], [], 'noindex', gzero, 'stopresult' = true) and temp <> 0 then 
+        largestSize := i:
+        # break: 
+    end if: 
+end do:
+# if largestSize >= minimumReduction then
+# break:
+# end if:
+
+print(" The largest valid invertible submatrix is of size ", largestSize ):
+range := sizeOfMat - largestSize + 1 :
+M11 := modifiedCoeffMatrix[1..range-1,1..range-1]:
+if largestSize > 0 then
+    M12 := modifiedCoeffMatrix[1..range-1,range..sizeOfMat]:
+    M21 := modifiedCoeffMatrix[range..sizeOfMat,1..range-1]:
+    M22 := modifiedCoeffMatrix[range..sizeOfMat,range..sizeOfMat]:
+else
+    M12 := [[0]]:
+    M21 := [[0]]:
+    M22 := [[0]]:
+end if:
+shortenedMonomialBasis := convert(modifiedMonomialBasis[1..range-1],list):
+
+print("Using intermediate variables, simplifying the matrix equations.");
+
+sizesOfM22 := Size(M22):
+sizesOfM12 := Size(M12):
+interVarCnt := sizesOfM22[1]*sizesOfM22[2] + 2*sizesOfM12[1]*sizesOfM12[2]:
+temp2s := Matrix(interVarCnt, 1):
+arrayOfTemp2s := [[]]:
+
+
+#shortenedCoeffMatrix := convert(evalm(temp2_1 * M11-evalm(`&*`(`&*`(M12, M122), M21))), Matrix):
+M11, M12, M21, M22,coeffMatrix1, monomialBasis1, range, temp2s, coeffMatrix1, monomialBasis1:
+#M11, M12, M21, M22, modifiedCoeffMatrix, modifiedMonomialBasis, range, temp2s[1..k-1,1], coeffMatrix1, monomialBasis1:
+
+end proc:

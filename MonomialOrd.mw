@@ -1,0 +1,15 @@
+SortListByMonDeg := proc(monomialList) 
+local temp, i, j, tempList:
+tempList := monomialList:
+for i to ArrayTools[Size](monomialList)[2]-1 do 
+for j to ArrayTools[Size](monomialList)[2]-1 do 
+if degree(tempList[j+1]) > degree(tempList[j]) then 
+temp := tempList[j+1]:
+tempList[j+1] := tempList[j];
+tempList[j] := temp;
+end if: 
+end do: 
+end do:
+tempList
+end:
+

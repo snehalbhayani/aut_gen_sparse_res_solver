@@ -1,0 +1,69 @@
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+
+B1 := B: T1 := convert(T,list):
+ olddiff := Bn - solverrank:
+while olddiff > 0 do
+    
+    B1 := B: T1 := convert(T,list):
+    Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T1), `+`):
+    rowindicestotest := [seq(1..Tn)]:
+    cstried :=[]:
+    print(" trying... ",olddiff ):   
+    while olddiff > 0 do
+    	randomize():
+        Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T1), `+`):
+    	Ctemp := polytomat(T1, B1, eval(eqs), vars, numelems(B1), convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T1), `+`)):
+    	Btemp := B1:
+    	Ttemp := T1:
+        temp := convert(Ttemp[-1], list, nested = true):
+    	bbs := map(j -> select(k -> Btemp[k] = [temp[j][1], op(temp[j][2..])], [seq(1 .. numelems(Btemp))])[1], [seq(1 .. numelems(temp))]):
+    	gbs := convert(convert([seq(1 .. numelems(Btemp))], set) minus convert(bbs, set), list):    
+        if numelems(cstried) = numelems(B) then break: end if:
+        rowindices := [seq(1..Tn)]:
+        colindices := [seq(1..numelems(Btemp))]:
+					
+        # Cols to test 
+        c := combinat[randperm]([op(bbs),op(gbs)][(numelems(bbs)+1)..])[1..1]:
+    	cstried	:= [op(cstried), op(c)]:
+        
+    	# Cols to remove
+        rows2rem := convert(convert(map(j -> op(select(i -> Ctemp[i,j] <> 0, [seq(1..ArrayTools[Size](Ctemp)[1])])), c),set),list):	
+        rows2kp := select(proc (j) options operator, arrow; not(j in rows2rem) end proc, [seq(1 .. ArrayTools[Size](Ctemp,1))]): 		
+        # Modified C
+        Ctemp := Ctemp[rows2kp, () .. ()]:
+        if ArrayTools[Size](Ctemp,1) < ArrayTools[Size](Ctemp,2) or ArrayTools[Size](Ctemp,1) = 0 then next: end if:
+
+        Ctempb := map(i -> `if`(i = 0, 0, 1), Ctemp):     
+        zdcols := convert(ArrayTools[AddAlongDimension](Ctempb, 1), list):
+        colstokp := select(j -> zdcols[j] <> 0, [seq(1 .. numelems(zdcols))]):
+        cols2rem := select(j -> zdcols[j] = 0, [seq(1 .. numelems(zdcols))]):     
+        Ctemp := Ctemp[() .. (), colstokp]: 
+        Btemp := Btemp[colstokp]:        
+        if numelems(cols2rem) = 0 then next: end if:
+	    	
+        rowindices := rowindices[rows2kp]:
+        Ttemp:=map(k -> Ttemp[k][select(j -> j+convert(map(t->ArrayTools[Size](Ttemp[t],1), [seq(1 .. numelems(Ttemp[..k-1]))]), `+`) in rowindices, [seq(1..ArrayTools[Size](Ttemp[k],1))]),..], [seq(1..numelems(Ttemp))]):	
+        if convert(map(t->ArrayTools[Size](t,1), Ttemp), `*`) = 0  then next: end if:
+        
+        Ctemp := LinearAlgebra[Modular][Mod](ithprime(1000), Ctemp, integer[8]):
+        
+        difff := ArrayTools[Size](Ctemp)[2]-LinearAlgebra[Modular][Rank](ithprime(1000), Ctemp): 
+        
+        if difff > olddiff then next: end if:
+    print(c, numelems(rows2rem), numelems(cols2rem), ArrayTools[Size](Ctemp),LinearAlgebra[Modular][Rank](ithprime(1000), Ctemp), difff);
+        
+        B1 := Btemp:
+        T1 := Ttemp:    
+        cstried := []:    
+        rowindicestotest := rowindicestotest[rowindices]:    
+        #Ctemp := polytomat(T1, B1, eval(eqs), vars, numelems(B1), convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T1), `+`)):
+        olddiff := difff:
+    end do:    
+end do:
+
+T:=T1: B:=B1:
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################

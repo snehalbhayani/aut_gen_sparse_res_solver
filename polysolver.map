@@ -1,0 +1,614 @@
+topel:=proc(q,var)
+
+local i,n,ele;
+
+n:=numelems(q);
+ele:={};
+for i in q do 
+	if not member(i*var, q) then 
+		ele := {op(ele), i};
+	end if 
+end do;
+return ele;
+
+end proc:
+
+botel:=proc(q,var)
+
+local i,n,ele;
+
+n:=numelems(q);
+ele:={};
+for i in q do 
+	if not member(i/var, q) then 
+		ele := {op(ele), i};
+	end if 
+end do;
+return ele;
+
+end proc:
+
+ftopm:=proc(f,vars,q)
+
+local qq,i,co,t,pm,tpel;
+
+qq:=convert(q,set);
+pm:={};
+tpel:=topel(q,vars[1]);
+
+for i in q do
+	co:=coeffs(expand(f*i),vars,'t');
+	if {t} subset qq then
+		if nops({t} intersect tpel)>0 then
+			pm:={op(pm),i}
+		end if;
+	end if;
+end do;
+return pm;
+
+end proc:
+
+fmult:=proc(fs,vars,q)
+
+local ne,qq,i,j,co,t,pm,ml,mlt;
+
+ne:=numelems(fs);
+qq:=convert(q,set);
+pm:=copy(qq);
+
+for i from 1 to ne do
+	co:=coeffs(fs[i],vars,'t');
+	pm:=`union`(pm,{t});
+end do;
+mlt:=[];
+
+for i from 1 to ne do
+	ml:={};
+	for j in pm do
+		co:=coeffs(expand(fs[i]*j),vars,'t');
+		#if `subset`({t}, qq) then
+		if numelems(`minus`({op(qq),t},qq))=0 then
+			ml:={op(ml),j};
+		end if;
+	end do;
+	mlt:=[op(mlt),ml];
+end do;
+
+return mlt;
+
+end proc:
+
+constmat:=proc(fs,vars,q)
+
+local ne,nq,qe,qs,qd,qn,nd,A,i,j,k,me,po,nm,At,Ad,co,t,eq,mlt;
+
+##qs:=makebasis(fs,vars);
+qs:=convert(q,set);
+ne:=numelems(fs);
+nq:=numelems(qs);
+
+qe := topel(qs, vars[1]);
+qd := `minus`(qs, qe);
+#qw := topel(qd, vars[1]);
+#qd := `minus`(qd, qw);
+#qd := [op(qw),op(qd)];
+qn := [op(qe),op(qd)];
+nd := numelems(qd);
+
+mlt:=fmult(fs,vars,qn);
+
+A:=Matrix(0,nq);
+for i from 1 to ne do
+	nm := numelems(mlt[i]);
+	At:=Matrix(nm,nq);
+	for j from 1 to nm do
+		eq:=expand(fs[i]*mlt[i,j]);
+		co:=[coeffs(eq,vars,'t')];
+		for k from 1 to nq do
+			if member(qn[k],[t],'po') then
+				At[j,k]:=co[po];
+				##At[j,k]:=f[i,po];
+			end if;
+		end do;
+	end do;
+	A:=<A,At>;
+end do;
+
+Ad:=Matrix(nd,nq);
+for i from 1 to nd do
+	me:=member(vars[1]*qd[i],qn,'po');
+	Ad[i,po]:=1;
+end do;
+A:=<A,Ad>;
+
+return (A,qn);
+
+end proc:
+		
+constrow:=proc(f,vars,q,mu)
+
+local nq,eq,co,t,v,k;
+
+nq:=numelems(q);
+eq:=expand(f*mu);
+co:=[coeffs(eq,vars,'t')];
+
+v:=Matrix(1,nq);
+
+for k from 1 to nq do
+	if member(q[k],[t],'po') then
+		v[1,k]:=co[po];
+	end if;
+end do;
+return v;
+
+end proc:
+
+isfull:=proc(C,st)
+
+local di,n,D;
+with(LinearAlgebra):
+
+print(st);
+di:=Dimensions(C);
+n:=di[2];
+
+D:=C[(st+1)..n,(st+1)..n];
+print(n-st-Rank(D));
+	
+if Rank(D)=n-st then
+	return true
+else
+	return false
+end if
+
+end proc:
+
+lattpts:=proc(f,vars)
+
+local n,A,co,t,m,i,j,d;
+
+n:=numelems(vars);
+
+co:=coeffs(f,vars,'t');
+m:=numelems({t});
+
+A:=Matrix(m,n);
+
+for i from 1 to m do
+	for j from 1 to n do
+		d:=degree(t[i],vars[j]);
+		A[i,j]:=d;
+	end do;
+end do;
+
+return convert(A, list, nested);
+
+end proc:
+
+minkowski:=proc(A,B)
+
+local na,nb,C,i,j;
+
+na:=numelems(A);
+nb:=numelems(B);
+C:=[];
+
+for i from 1 to na do
+	for j from 1 to nb do
+		C:=[op(C),A[i]+B[j]];
+	end do;
+end do;
+
+return C;
+
+end proc:
+
+IntegerPoints := proc (SN::{list, set}, Var::list)
+
+local SN1, sn, n, i, p, q, xl, xr, Xl, Xr, X, T, k, t, S;
+
+uses combinat;
+
+SN1 := SN;
+
+for sn in SN1 do if type(sn, `<`) then SN1 := subs(sn = (`<=`(op(sn))), SN1) fi; od;
+
+ n := nops(Var);
+
+for i to n do
+
+p := simplex[minimize](Var[i], SN1); q := simplex[maximize](Var[i], SN1);
+
+if p = {} or q = {} then return {} else
+
+if p = NULL or q = NULL then error "The region should be bounded" else
+
+xl[i] := eval(Var[i], p);
+
+xr[i] := eval(Var[i], q) fi; fi; od;
+
+Xl := ceil~(convert(xl, list)); Xr := floor~(convert(xr, list));
+
+X := [seq([$ Xl[i] .. Xr[i]], i = 1 .. n)];
+
+T := cartprod(X); k := 0;
+
+while not T[finished] do
+
+t := T[nextvalue]();
+
+if convert(eval(SN, Var=~t), `and`) then
+
+k := k+1; S[k] := t fi; od;
+
+S := convert(S, set);
+
+if type(S, set(list)) then S else {} fi;
+
+end proc:
+
+makebasis:=proc(fs,vars)
+
+local ne,nv,le,ch0,ch,p,ps,vr,C,i,tr,tps,bpts,q,n,mon,j;
+
+##with(PolyhedralSets):
+uses PolyhedralSets;
+
+ne:=numelems(fs);
+nv:=numelems(vars);
+
+le := eval([seq(0, i = 1 .. nv)]);
+ch0:=[le];
+le[1]:=1;
+ch0:=[op(ch0),le];
+
+ch:=[ch0];
+
+for i from 1 to ne do
+	p:=lattpts(fs[i],vars);
+	ps:=PolyhedralSet(p);
+	vr:= VerticesAndRays(ps);
+	ch:=[op(ch),vr[1]];
+end do;
+
+C:=ch[1];
+
+for i from 1 to ne do
+	C:=minkowski(C,ch[i+1]);
+end do;
+
+ps:=PolyhedralSet(C);
+tr:=[seq(1/10,i=1..nv)];
+tps := Translate(ps, tr);
+
+bpts:=IntegerPoints(Relations(tps), Coordinates(tps));
+
+q:=[];
+n:=numelems(bpts);
+for i from 1 to n do
+	mon:=1;
+	for j from 1 to nv do
+		mon:=mon*vars[j]^bpts[i][j];
+	end do;
+	q:=[op(q),mon];
+end do;
+
+return q;
+
+end proc:
+
+polyhed:=proc(pts)
+
+local mat,n,m,ip,i,ps;
+
+#with(PolyhedralSets):
+#uses PolyhedralSets;
+#uses LinearAlgebra;
+with(LinearAlgebra):
+
+mat := convert(pts, Matrix);
+n,m:=Dimensions(mat);
+
+ip:=[];
+for i from 1 to m do
+	ip:=[op(ip), pts[max[index](mat[..,i])]];
+	ip:=[op(ip), pts[min[index](mat[..,i])]];
+end do;
+ps := PolyhedralSet(ip);
+
+for i from 1 to n do 
+	if `not`(pts[i] in ps) then 
+		ps := ConvexHull(ps, PolyhedralSet([pts[i]]));
+	end if;
+end do;
+
+return ps;
+
+end proc:
+
+fmonom:=proc(fs,vars)
+
+local n, mon, i, j, co, t;
+
+n:=numelems(fs);
+
+mon:=[];
+
+for i from 1 to n do
+	co:=coeffs(expand(fs[i]),vars,'t');
+	for j in [t] do
+		if not member(j,mon) then
+			mon:=[op(mon),j];
+		end if;
+	end do;
+end do;
+
+return mon;
+
+end proc:
+
+pepc:=proc(fs,vars,qp,dg)
+
+local ne,nq,rvars,mlt,C,i,j,mu,co,t,r;
+
+ne:=numelems(fs);
+nq:=numelems(qp);
+
+rvars:=vars[2..];
+
+mlt := fmult(fs, rvars, qp);
+
+C:=Matrix(0,nq);
+for j from 1 to ne do
+	for mu in mlt[j] do
+		co:=coeffs(expand(mu*fs[j]),vars,'t');
+		r:=Matrix(1,nq);
+		for i from 1 to numelems([t]) do
+			if member(t[i]/vars[1]^dg,qp,'po') then
+				r[1,po]:=co[i];
+			end if;
+		end do;
+		C:=<C,r>;
+	end do;
+end do;
+
+return C;
+
+end proc:
+
+ptomon:=proc(bpts,vars)
+
+local q,mon,n,m,i,j;
+
+n:=numelems(bpts);
+m:=numelems(vars);
+
+q:=[];
+for i to n do 
+	mon := 1; 
+	for j to m do 
+		mon := mon*vars[j]^bpts[i][j];
+	end do; 
+	q := [op(q), mon] ;
+end do;
+
+return q;
+
+end proc:
+
+
+polytomat := proc(T,B,eqs,vars,Bn,Tn)
+local i,m,mon,aa, Bmons, u, r, Coeffs, t, monTomul, indOfMon, indOfShiftdMon, mons2, CoeffC, indOfMonProd, C:
+Bmons := Matrix(Bn, 1):
+for u to Bn do 
+	Bmons[u, 1] := convert(`~`[`^`](vars, B[u, () .. ()]), `*`): 
+end do: 
+r := 1: 
+C := Matrix(Tn, Bn, fill = 0): 
+for i to ArrayTools[Size](T)[2] do 
+	Coeffs := coeffs(expand(eqs[i]), vars, 'monstemp'): 
+	t := T[i]: 
+	for m to ArrayTools[Size](t)[1] do 
+		monTomul := convert(`~`[`^`](vars, t[m]), `*`): 
+		Coeffs := coeffs(expand(simplify(monTomul*eqs[i])), vars, 'mons1'): 
+		mons1 := [mons1]:
+		for mon in mons1 do 
+			indOfMon := ListTools[Search](mon, mons1): 
+			indOfShiftdMon := ListTools[Search](mon, Bmons)[1]: 
+#if indOfShiftdMon = 0 then
+# 			print(indOfMon, mon, convert(Bmons,matrix)):
+#			print(indOfShiftdMon, mon):
+#end if:
+			C[r, indOfShiftdMon] := Coeffs[indOfMon]:
+		end do: 
+		r := r+1: 
+	end do:
+end do: 
+return C:
+
+
+end proc:
+
+
+# ==================================================
+# Converting a poly to a matrix
+# Given a set of poly. eqs and vars,
+# converts the polynomial equations 
+# to a matrix multiplication M * basis = 0
+# ==================================================
+monpolymult := proc(eqs, vars, variableorder)
+
+local basis, coeffslist, monsfromeq, M, tempts, m, i, k, mind, t, rvo, ji, j:
+
+# Finding basis
+basis := convert([], set):
+for i to numelems(eqs) do 
+	coeffslist := [coeffs(expand(eqs[i]), vars, 'monsfromeq')]:
+	basis := basis union convert([monsfromeq], set):
+end do:
+
+# Making the Coeff Matrix from the initial set of polynomials
+printf("Var. order selected: %s \n",convert(variableorder,string));
+
+basis := sort(convert(basis, list), proc (b, a) options operator, arrow; Groebner[TestOrder](a, b, tdeg(op(variableorder))) end proc):
+#printf("%s \n",convert(basis,string));
+M := Matrix(numelems(eqs), numelems(basis), fill = 0): 
+tempts := []: 
+k := 1:
+for i to numelems(eqs) do 
+	coeffslist := [coeffs(expand(eqs[i]), vars, 'monsfromeq')]:
+	monsfromeq := [monsfromeq];
+	for m to numelems(monsfromeq) do 
+		mind := ListTools[Search](monsfromeq[m], basis): 
+        # PATCH --- Snehal: Fix for the case where the t's are repeating
+        ji := select(j -> tempts[j] = coeffslist[m], [seq(1..numelems(tempts))]):
+        
+        if numelems(ji) = 1 then 
+            M[i, mind] := cat('t',ji[1]): 
+        else:
+            
+            if coeffslist[m] = 1 then
+                M[i, mind] := 1:
+            elif coeffslist[m] = -1 then
+                M[i, mind] := -1:
+            else
+                M[i, mind] := cat('t',k):             
+                tempts := [ op(tempts),coeffslist[m]]:
+                k := k +1:
+            end if:
+            
+        end if:
+        #M[i, mind] := coeffslist[m]: 		
+		
+	end do: 
+end do:
+return M, basis, tempts:
+end proc:
+
+# ==================================================
+# Reduce the given equations in matrix form using GJ elimination.
+# ==================================================
+reducepoly := proc(M, basis, noofrowstoreduce, noofdatacoeff, randrange, tempts)
+local numoftempts, k, nc, linearindex, Mreduced, M1, M2, Mpatch, i, j, reducedeqs:
+
+numoftempts := numelems(tempts):
+if noofrowstoreduce > 0 then
+	# GJ elimination of the coeff matrix.
+	for i to noofdatacoeff do  
+		assign(cat('c', i), RandomTools[Generate](rational)):
+	end do:
+
+	for i to numoftempts do 
+		assign(cat('t', i), tempts[i]): 
+	end do:
+
+	Mpatch:=LinearAlgebra[ReducedRowEchelonForm](convert(M[1..noofrowstoreduce,..],Matrix)):
+	M1 := ArrayTools[Concatenate](1, Mpatch, evalm(convert(M[noofrowstoreduce+1..,..], Matrix)));
+
+	# GJ elimination of the coeff matrix.
+	for i to noofdatacoeff do  
+		assign(cat('c', i), RandomTools[Generate](rational)):
+	end do:
+	for i to numoftempts do 
+		assign(cat('t', i), tempts[i]): 
+	end do:
+
+	Mpatch:=LinearAlgebra[ReducedRowEchelonForm](convert(M[1..noofrowstoreduce,..],Matrix)):
+	M2 := ArrayTools[Concatenate](1, Mpatch, evalm(convert(M[noofrowstoreduce+1..,..], Matrix)));
+else
+
+	for i to noofdatacoeff do  
+		assign(cat('c', i), RandomTools[Generate](rational)):
+	end do:
+	for i to numoftempts do 
+		assign(cat('t', i), tempts[i]): 
+	end do:
+	M1 := evalm(M):
+	for i to noofdatacoeff do  
+		assign(cat('c', i),RandomTools[Generate](rational)):
+	end do:
+	for i to numoftempts do 
+		assign(cat('t', i), tempts[i]): 
+	end do:
+	M2 := evalm(M):
+end:
+
+for i to numoftempts do
+	unassign(cat('t',i)):
+end do:
+for i to noofdatacoeff do
+	unassign(cat('c',i)):
+end do:
+
+# Replacing elements of reduced matrix with new set of vars.
+
+k := 1: nc:=[]: linearindex := 1:
+Mreduced := Matrix(numelems(eqs), numelems(basis), symbol = 'ncs'):
+for j to numelems(basis) do 
+	for i to numelems(eqs) do 
+		if M1[i,j] - M2[i,j] <> 0 then
+			Mreduced[i, j] := cat('nc', k):
+			nc := [op(nc), linearindex]:
+			k := k+1:
+		else
+			Mreduced[i, j] := M2[i,j]:
+		end if:
+		linearindex := linearindex + 1:
+	end do:
+end do:
+
+# Generating the equations for a reduced system with evaluated coeffs.
+reducedeqs :=[]:
+for i to ArrayTools[Size](Mreduced)[1] do 
+	reducedeqs := [op(reducedeqs), evalm(Mreduced[i,..] &* basis)]:
+end do:
+
+
+return Mreduced, reducedeqs, nc:
+end proc:
+
+polytomat2 := proc(T,B,eqs,vars,Bn,Tn,A)
+local i,m,mon,aa, Bmons, u, r, Coeffs, t, monTomul, indOfMon, indOfShiftdMon, mons2, CoeffC, indOfMonProd:
+Bmons := []:
+for u to Bn do 
+#	Bmons := [op(Bmons),convert(`~`[`^`](vars, B[u]), `*`)]: 
+    Bmons := [op(Bmons), B[u]]:
+end do:
+#Bmons:=convert(Bmons,list):
+r := 1: 
+CoeffC := Matrix(Tn,100,fill = 0): 
+for i to ArrayTools[Size](T)[2] do 
+	Coeffs := coeffs(expand(eqs[i]), vars, 'mons1'): 
+	t := T[i]: 
+	for m to ArrayTools[Size](t)[1] do 
+		monTomul := convert(`~`[`^`](vars, t[m]), `*`): 
+		Coeffs := coeffs(expand(simplify(monTomul*eqs[i])), vars, 'mons1'): 
+		mons2 := map(aa->convert(`~`[`+`](aa, t[m]),list),A[i]):
+		for mon in mons2 do 
+			indOfMon := ListTools[Search](mon, [mons1]): 
+			indOfShiftdMon := ListTools[Search](mon, Bmons): 
+			if indOfShiftdMon = 0 then
+				Bmons := [op(Bmons), mon]:
+				indOfShiftdMon:=numelems(Bmons):
+			end if:
+			indOfMonProd := ListTools[Search](convert(`~`[`^`](vars, mon), `*`), [mons1]):
+			CoeffC[r,indOfShiftdMon] := Coeffs[indOfMonProd]:
+		end do: 
+		r := r+1: 
+	end do:
+end do: 
+return CoeffC,Bmons:
+
+
+end proc:
+
+
+
+findlargestint:= proc(rowColCnts, zCValues, diff) 
+local intsize, selectedcomb, selectedtemp, found, comb, combint, dif, existingcombint:
+intsize := 0; selectedcomb := []; for comb in seq(combinat[choose]([seq(1 .. rowColCnts[2])], 2)) do combint := `intersect`(op(map(proc (oo) options operator, arrow; convert(oo, set) end proc, zCValues[comb]))); if numelems(combint) > intsize then intsize := numelems(combint); selectedcomb := comb end if end do; for dif to diff do found := 1; while found = 1 do existingcombint := `intersect`(op(map(proc (oo) options operator, arrow; convert(oo, set) end proc, zCValues[selectedcomb]))); intsize := numelems(existingcombint); found := 0; selectedtemp := []; for comb in [seq(1 .. rowColCnts[2])] do if comb in selectedcomb then next end if; combint := convert(zCValues[comb], set) intersect existingcombint; if numelems(combint) >= intsize-dif then intsize := numelems(combint); selectedtemp := comb; found := 1 end if end do; if found = 1 then selectedcomb := [op(selectedcomb), selectedtemp]; end if: end do: end do:
+
+return selectedcomb;
+
+end proc:

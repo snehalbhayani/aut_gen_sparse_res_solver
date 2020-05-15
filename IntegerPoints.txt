@@ -1,0 +1,77 @@
+IntegerPoints := proc (SN::{list, set}, Var::list) 
+
+	local SN1, sn, n, Sol, k, i, s, S, R; 
+	SN1 := convert(evalf(SN), fraction); 
+	for sn in SN1 do 
+		if type(sn, `<`) then 
+			SN1 := subs(sn = (`<=`(op(sn))), SN1): 
+		end if: 
+	end do; 
+	if PolyhedralSets:-IsBounded(PolyhedralSets:-PolyhedralSet(SN1)) = false then 
+		error "The region should be bounded" 
+	end if;
+	n := nops(Var); 
+	# print(SN,Var);
+	Sol := SolveTools[Inequality][LinearMultivariateSystem](SN, Var); 
+	if Sol = {} then 
+		return {} 
+	else 
+		k := 0; 
+		for s in Sol do 
+			if nops(indets(s[1])) = 1 then 
+				S[0] := [[]]; 
+				for i to n do 
+					S[i] := [seq(seq([op(j1), op(j2)], j2 = [isolve(eval(s[i], j1))]), j1 = S[i-1])]: 
+				end do; 
+				k := k+1; 
+				R[k] := op(S[n]): 
+			end if: 
+		end do; 
+		convert(R, set); 
+		map(proc (t) options operator, arrow; `~`[rhs](t) end proc, %) :
+	end if:
+end proc;
+
+
+
+IntegerPoints1 := proc (SN::{list, set}, Var::list)
+	local SN1, sn, n, i, p, q, xl, xr, Xl, Xr, X, T, k, t, S;
+	uses combinat:
+	SN1 := SN:
+	for sn in SN1 do 
+		if type(sn, `<`) then 
+			SN1 := subs(sn = (`<=`(op(sn))), SN1):
+		fi; 
+	od;
+	n := nops(Var);
+	for i to n do
+		p := simplex[minimize](Var[i], SN1); q := simplex[maximize](Var[i], SN1):
+		if p = {} or q = {} then 
+			return {}: 
+		else 
+			if p = NULL or q = NULL then 
+				error "The region should be bounded":
+			else
+				xl[i] := eval(Var[i], p):
+				xr[i] := eval(Var[i], q):
+			fi:
+		fi:
+	od:
+	Xl := ceil~(convert(xl, list)); Xr := floor~(convert(xr, list)):
+	X := [seq([$ Xl[i] .. Xr[i]], i = 1 .. n)]:
+	T := cartprod(X):
+	k := 0:
+	while not T[finished] do
+		t := T[nextvalue]():
+		if convert(eval(SN, Var=~t), `and`) then
+			k := k+1:
+			S[k] := t: 
+		fi: 
+	od:
+	S := convert(S, set):
+	if type(S, set(list)) then 
+		S: 
+	else 
+		{}:
+	fi:
+end proc:

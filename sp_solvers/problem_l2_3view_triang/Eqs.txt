@@ -1,0 +1,8 @@
+ eq1 := a3*a7*c1+a4*a7*c4+a7*c7+2*a1-2*c19: eq2 := a3*a7*c2+a4*a7*c5+a7*c8+2*a2-2*c20: eq3 := a1*a7*c1+a2*a7*c2+a5*a8*c10+a6*a8*c13+a7*c3+a8*c16+2*a3-2*c21: eq4 := a1*a7*c4+a2*a7*c5+a5*a8*c11+a6*a8*c14+a7*c6+a8*c17+2*a4-2*c22: eq5 := a3*a8*c10+a4*a8*c11+a8*c12+2*a5-2*c23: eq6 := a3*a8*c13+a4*a8*c14+a8*c15+2*a6-2*c24: eq7 := a1*a3*c1+a1*a4*c4+a2*a3*c2+a2*a4*c5+a1*c7+a2*c8+a3*c3+a4*c6+c9: eq8 := a3*a5*c10+a3*a6*c13+a4*a5*c11+a4*a6*c14+a3*c16+a4*c17+a5*c12+a6*c15+c18:
+eqs := [
+eq1,eq2,eq3,eq4,eq5,eq6,eq7,eq8
+]:
+vars := [a7, a1, a2, a3, a4, a5, a6, a8]:
+hiddenVarNumber :=  7 :
+noofrowstoreduce :=  0 :
+unHiddenVars := [a1, a2, a3, a4, a5, a6, a8]:

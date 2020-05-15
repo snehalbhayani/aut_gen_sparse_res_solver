@@ -1,0 +1,53 @@
+read "multires03.txt":
+with(Groebner):
+with(ArrayTools):
+with(CodeGeneration):
+read "LargestInvrtbleSubMat.txt": 
+
+EstimatePolytopes := proc (listOfEqns ::list, vars ::list, hiddenVar) 
+ 	local p,q:
+	print("Trying to find the polytopes of the equations..."):
+    	p,q := `toric/polytope`(listOfEqns,vars);
+	p,q:
+end:
+
+BasisBySprseResultant := proc (listOfEqns ::list, vars ::list, hiddenVar) 
+local spBasis, coeffMatrix, degreeHidVar, AllCs, M11, M12, M21, M22, Cs, newMonomialBasis1, newCoeffMatrix, largestSize, temp2s, oCoeffMatrix, oMonomialBasis, newCoeffMatrix1:
+description "Calculate a sparse resultant of the given list of polynomials in given list of variables"; 
+    print("Computing the sparse resultant...", listOfEqns):
+	coeffMatrix, spBasis := spresultant(listOfEqns, vars):
+	coeffMatrix := convert(coeffMatrix, Matrix):
+
+	print(cat("Trying to optimize the size of monomial basis. Original size is \n \n", Size(spBasis)[2])):    	
+	M11, M12, M21, M22, newCoeffMatrix1, newMonomialBasis1, largestSize, temp2s, oCoeffMatrix, oMonomialBasis := ReorderCoeffMatrix(coeffMatrix, hiddenVar, spBasis, degreeHidVar):
+	
+	newCoeffMatrix := newCoeffMatrix1:
+	
+	print("We need the largest degree of a polynomial in the hidden variable.");
+	degreeHidVar := max(map( f -> degree(f,hiddenVar), newCoeffMatrix1));	
+	AllCs:= map(i -> coeff(newCoeffMatrix, hiddenVar^i), [seq(1..degreeHidVar)]):
+	Cs := [coeff(newCoeffMatrix * hiddenVar, hiddenVar), op(AllCs)]:
+	Cs := convert(Cs, Matrix):
+
+    M11, M12, M21, M22, Cs, LinearAlgebra[Transpose](convert(newMonomialBasis1,Matrix)), degreeHidVar, newCoeffMatrix, largestSize, temp2s, oCoeffMatrix, oMonomialBasis, coeffMatrix :
+	
+end:
+
+MatlabCodeCreator := proc(CoeffMatrices, varName, fileName)
+description "Take in the coeffmatrices estimate the eigenvalues and eigenvectors for these CS matrices";
+
+	# Once we have the coefficient matrices, we need to create a MATLAB code that will work with these matrices. 
+	Matlab(CoeffMatrices, output=fileName, resultname=varName);
+
+end:
+BasisByGbBasis := proc (listOfEqns ::list, vars :: list) 
+local gbBasis, ringBasis:
+description "Calculate a basis using groebner bases"; 
+	
+	gbBasis := Basis(listOfEqns, tdeg(seq(vars))):
+	ringBasis := NormalSet(gbBasis, tdeg(seq(vars))):
+	ringBasis[1]:
+end:
+
+
+ 
