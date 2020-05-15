@@ -1,8 +1,0 @@
- eq1 := a1^3*c20+a1^2*a2*c19+a1^2*a3*c18+a1*a2^2*c16+a1*a2*a3*c15+a1*a3^2*c13+a2^3*c10+a2^2*a3*c9+a2*a3^2*c7+a3^3*c4+a1^2*c17+a1*a2*c14+a1*a3*c12+a2^2*c8+a2*a3*c6+a3^2*c3+a1*c11+a2*c5+a3*c2+c1: eq2 := a1^3*c40+a1^2*a2*c39+a1^2*a3*c38+a1*a2^2*c36+a1*a2*a3*c35+a1*a3^2*c33+a2^3*c30+a2^2*a3*c29+a2*a3^2*c27+a3^3*c24+a1^2*c37+a1*a2*c34+a1*a3*c32+a2^2*c28+a2*a3*c26+a3^2*c23+a1*c31+a2*c25+a3*c22+c21: eq3 := a1^3*c60+a1^2*a2*c59+a1^2*a3*c58+a1*a2^2*c56+a1*a2*a3*c55+a1*a3^2*c53+a2^3*c50+a2^2*a3*c49+a2*a3^2*c47+a3^3*c44+a1^2*c57+a1*a2*c54+a1*a3*c52+a2^2*c48+a2*a3*c46+a3^2*c43+a1*c51+a2*c45+a3*c42+c41:
-eqs := [
-eq1,eq2,eq3
-]:
-vars := [a1, a2, a3]:
-hiddenVarNumber :=  1 :
-noofrowstoreduce :=  0 :
-unHiddenVars := [a2, a3]:
