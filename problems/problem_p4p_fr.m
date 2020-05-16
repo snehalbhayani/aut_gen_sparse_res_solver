@@ -1,51 +1,45 @@
-function [ eqs, data0, eqs_data ] = problem_p4p_fr( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, theoreticalsolncnt, noofrowstoreduce, heurisitictemplatesize ] = problem_p4p_fr(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 64;
 
-if nargin < 1 || isempty(data0)
-    data0 = randi(50,64,1);
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
+    end
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
+    end
+end
+for k = 1:4
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
+end
+data = transpose(data);
+%% Formatting the data structure
+
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+if nargout >= 7
+    eqs = Eqs_problem_p4p_fr(p{:});
+else
+    eqs = [];
 end
 
-xx = create_vars(4);
-k = xx(1);
-alfa = [xx(2:4);1];
-
-M1 = reshape(data0(1:16),4,4);
-M2 = reshape(data0(17:32),4,4);
-
-M3 = reshape(data0(33:64),4,8);
-P1 = M1*alfa;
-P2 = M2*alfa;
-v = [alfa(1:3);k*alfa(1:3);k;1];
-P3 = M3*v;
-
-eqs(1) = P1(1:3)'*P2(1:3);
-eqs(2) = P1(1:3)'*P3(1:3);
-eqs(3) = P2(1:3)'*P3(1:3);
-eqs(4) = P1(1:3)'*P1(1:3)-P2(1:3)'*P2(1:3);
-
-eqs = eqs(:);
-
-if nargout == 3
-    xx = create_vars(4+64);
-    data = xx(5:end);
-
-k = xx(1);
-alfa = [xx(2:4);1];
-
-M1 = reshape(data(1:16),4,4);
-M2 = reshape(data(17:32),4,4);
-
-M3 = reshape(data(33:64),4,8);
-P1 = M1*alfa;
-P2 = M2*alfa;
-v = [alfa(1:3);k*alfa(1:3);k;1];
-P3 = M3*v;
-
-eqs_data(1) = P1(1:3)'*P2(1:3);
-eqs_data(2) = P1(1:3)'*P3(1:3);
-eqs_data(3) = P2(1:3)'*P3(1:3);
-eqs_data(4) = P1(1:3)'*P1(1:3)-P2(1:3)'*P2(1:3);
-eqs_data = eqs_data(:);
-
-
+if nargout >= 8
+    theoreticalsolncnt = 16;
 end
+vars = transpose(xx);
 
+coeffconsts = transpose(data);
+hiddenvarnum = 4;
+infinitePrec = 2;
+sizeofcombs = [2];
+polycomb=[1;2]; 
+noofrowstoreduce = 0;
+heurisitictemplatesize = 70;
+end

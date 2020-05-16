@@ -1,71 +1,47 @@
-function [ eqs, data0, eqs_data ] = problem_optpose3pt_v2( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, actualsolno, noofrowstoreduce, degstotest] = problem_optpose3pt_v2(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 21;
 
-
-if nargin < 1 || isempty(data0)
-    data0 = randi(50,9+3*4,1);
-end
-
-U = reshape(data0(1:9),3,3);
-
-
-count = 9;
-for iii = 1:3,
-    C(:,:,iii) = [data0(1+count) 0 data0(2+count);0 data0(1+count) data0(3+count); data0(2+count) data0(3+count) data0(4+count)];
-    count = count+4;
-end
-    
-xx = create_vars(5);
-cth = xx(4);
-sth = xx(5);
-t = xx(1:3);
-
-R = [1 0 0;0 cth -sth;0 sth cth];
-eqs = [];
-for iii = 1:3,
-    Up = R*U(:,iii)+t;
-    eqs = [eqs;Up'*C(:,:,iii)*Up];
-end
-eqs = [eqs;cth^2+sth^2-1];
-
-boffa = [];
-for iii = 1:3,
-    boffa = [boffa;diff(eqs(iii))];
-end
-eqs = [eqs;det(boffa(:,3:5))];
-
-%eqs = [eqs;det([1 0 0 0 0;2*cth 2*sth 0 0 0;boffa])];
-
-
-
-if nargout == 3
-    xx = create_vars(5+21);
-    data = xx(6:end);
-    
-    
-    U = reshape(data(1:9),3,3);
-    count = 9;
-    for iii = 1:3,
-        Cm(:,:,iii) = [data(1+count) 0 data(2+count);0 data(1+count) data(3+count); data(2+count) data(3+count) data(4+count)];
-    count = count+4;
-   end
- 
-    cth = xx(4);
-    sth = xx(5);
-    t = xx(1:3);
-    R = [1 0 0;0 cth -sth;0 sth cth];
-    eqs_data = [];
-    for iii = 1:3,
-        Up = R*U(:,iii)+t;
-        eqs_data = [eqs_data;Up'*Cm(:,:,iii)*Up];
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
     end
-    eqs_data = [eqs_data;cth^2+sth^2-1];
-    boffa = [];
-    for iii = 1:3,
-        boffa = [boffa;diff(eqs_data(iii))];
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
     end
-eqs_data = [eqs_data;det(boffa(:,3:5))];
+end
+for k = 1:5
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
+end
+data = transpose(data);
 
 
+%% Formatting the data structure
 
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+if nargout >= 7
+    eqs = Eqs_problem_optpose3pt_v2(p{:});
+else
+    eqs = [];
+end
+if nargout >= 8
+   actualsolno = 48;
 end
 
+    vars = transpose(xx);
+
+coeffconsts = transpose(data);
+hiddenvarnum = 3;
+infinitePrec = 2;
+sizeofcombs = [2];
+polycomb=[]; 
+noofrowstoreduce = size(eqs,2);
+degstotest = [];
+end

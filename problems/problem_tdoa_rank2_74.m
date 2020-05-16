@@ -1,55 +1,47 @@
-function [ eqs, data0, eqs_data ] = problem_tdoa_rank2_74( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, actualsolno, noofrowstoreduce, degstotest] = problem_tdoa_rank2_74(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 28;
 
-m = 7;
-n = 4;
-
-if nargin < 1 || isempty(data0)
-    data0 = randi(50,m*n,1);
-end
-
-
-xx = create_vars(n);
-
-rk = 2;
-d = reshape(data0(1:(m*n)),m,n);
-[cc1,dd1] = compactionmatrix(m);
-[cc2,dd2] = compactionmatrix(n);
-tmp1a = (d).^2;
-tmp1b = -2*(d.*repmat(xx',m,1));
-tmp2a = cc1*tmp1a*cc2'; % This is a constant matrix
-tmp2b = cc1*tmp1b*cc2'; % This depends on o
-c = tmp2a+tmp2b;
-
-rrs = nchoosek(1:(m-1),rk+1);
-for k = 1:size(rrs,1);
-    eqs(k,1)=det(c(rrs(k,:),:));
-end
-
-if nargout == 3
-    xx = create_vars(n+m*n);
-    oo = xx(1:4);
-    data = xx(5:end);
-    
-    
-    d = reshape(data(1:(m*n)),m,n);
-    [cc1,dd1] = compactionmatrix(m);
-    [cc2,dd2] = compactionmatrix(n);
-    tmp1a = (d).^2;
-    tmp1b = -2*(d.*repmat(xx',m,1));
-    tmp2a = cc1*tmp1a*cc2'; % This is a constant matrix
-    tmp2b = cc1*tmp1b*cc2'; % This depends on o
-    c = tmp2a+tmp2b;
-    
-    rrs = nchoosek(1:(m-1),rk+1);
-    for k = 1:size(rrs,1);
-        eqs_data(k,1)=det(c(rrs(k,:),:));
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
+    end
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
     end
 end
 
-function [cc,dd] = compactionmatrix(n);
-% cc = compactionmatrix(n);
-%
+for k = 1:4
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
+end
+data = transpose(data);
+%% Formatting the data structure
 
-cc = [-ones(n-1,1) eye(n-1)];
-dd = [1 zeros(1,n-1);cc];
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+addpath('eqs');
+if nargout >=7
+    eqs = Eqs_tdoa_rank2_74(p{:});
+else
+    eqs = [];
+end
+rmpath('eqs');
 
+if nargout >= 8
+    actualsolno = 20;
+end
+vars = transpose(xx);
+coeffconsts = transpose(data);
+hiddenvarnum = 1;
+infinitePrec = 2;
+sizeofcombs = [3];
+polycomb=[1;14;22];
+noofrowstoreduce=size(eqs,2);
+degstotest = [];
+end

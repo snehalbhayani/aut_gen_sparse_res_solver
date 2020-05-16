@@ -1,57 +1,46 @@
-function [ eqs, data0, eqs_data ] = problem_relpose_6p_focal( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, actualsolno, noofrowstoreduce,heurisitictemplatesize ] = problem_relpose_6p_focal(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 27;
 
-if nargin < 1 || isempty(data0)
-    data0 = randi(50,3*9,1);
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
+    end
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
+    end
 end
 
-xx = create_vars(3);
 
-F0 = reshape(data0(1:9),3,3);
-F1 = reshape(data0(10:18),3,3);
-F2 = reshape(data0(19:27),3,3);
-
-F = F0 + xx(1)*F1 + xx(2)*F2;
-Q = diag([1 1 xx(3)]);
-Ft = F';
-
-eqs = [2*(F*Q*Ft*Q)*F - sum(diag(F*Q*Ft*Q))*F];
-eqs = [eqs(:);det(F)];
-
-if nargout == 3
-    xx = create_vars(3+9*3);
-    data = xx(4:end);
-    
-    F0 = reshape(data(1:9),3,3);
-    F1 = reshape(data(10:18),3,3);
-    F2 = reshape(data(19:27),3,3);
-    
-    F = F0 + xx(1)*F1 + xx(2)*F2;
-    Q = diag([1 1 xx(3)]);
-    Ft = F';
-    
-    eqs_data = [2*(F*Q*Ft*Q)*F - sum(diag(F*Q*Ft*Q))*F];
-    eqs_data = [eqs_data(:);det(F)];
-    
-    totalsyms = 3 + 27;
-    noofvars = 3;
-    ipparams = strcat('a',num2str(1));
-    for i = 2:totalsyms
-        if i > noofvars
-            ipparams = strjoin({ipparams, ',c', num2str(i-noofvars)}, '');
-        else
-            ipparams = strjoin({ipparams, ',a', num2str(i)}, '');
-        end
-    end
-    
-    fileID = fopen('Eqs_problem_relpose_6p_focal.m','w');
-    fprintf(fileID, '%s', strjoin({'function eqs = retrieve_eqs(', ipparams, ') '},''));
-    fprintf(fileID, '\n');
-    for i = 1:size(eqs,1)
-        fprintf(fileID, '%s', strjoin({'eqs(', num2str(i),') = ',char(eqs_data(i,1), true, [], true, noofvars), ';'},''));
-        fprintf(fileID, '\n');
-    end
-    fprintf(fileID, '\n');
-    fprintf(fileID, '%s', 'end');
-    fclose(fileID);
+for k = 1:3
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
 end
+data = transpose(data);
 
+%% Formatting the data structure
+
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+if nargout >=7
+    eqs = Eqs_problem_relpose_6p_focal(p{:});
+else
+    eqs = [];
+end
+vars = transpose(xx);
+if nargout >= 8
+    actualsolno = 15;
+end
+coeffconsts = transpose(data);
+hiddenvarnum = 2;
+infinitePrec = 2;
+sizeofcombs = [2];
+polycomb=[1;11]; 
+noofrowstoreduce = 0;
+heurisitictemplatesize = 200;
+end

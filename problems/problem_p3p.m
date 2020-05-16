@@ -1,20 +1,46 @@
-function [ eqs, data0, eqs_data ] = problem_p3p( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, actualsolno, noofrowstoreduce, degstotest] = problem_p3p(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 18;
 
-if nargin < 1 || isempty(data0)
-    data0 = randi(200,6*3,1);
+if nargin == 1
+    if data == -1
+%         data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
+    end
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
+    end
 end
 
-xx = create_vars(3);
-x = reshape(data0(1:9),3,3);
-X = reshape(data0(10:18),3,3);
-lambda = xx(1:3);
-xl = x*diag(lambda);
-d = sum((xl(:,[1 1 2])-xl(:,[2 3 3])).^2);
-D = sum((X(:,[1 1 2])-X(:,[2 3 3])).^2);
-eqs = (d-D)';
 
-if nargout == 3
-    xx = create_vars(3+6*3);
-    eqs_data = problem_p3p(xx(4:end));
+for k = 1:3
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
 end
+data = transpose(data);
 
+%% Formatting the data structure
+
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+if nargout >=7
+    eqs = Eqs_problem_p3p(p{:});
+else
+    eqs = [];
+end
+vars = transpose(xx);
+if nargout >= 8
+    actualsolno = 8;
+end
+coeffconsts = transpose(data);
+hiddenvarnum = 1;
+infinitePrec = 2;
+sizeofcombs = [3];
+polycomb=[]; 
+noofrowstoreduce = 0;
+degstotest = [1;2;3;4;5];
+end

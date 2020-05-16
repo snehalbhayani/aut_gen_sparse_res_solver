@@ -1,36 +1,47 @@
-function [ eqs, data0, eqs_data ] = problem_tdoa_rank2_74( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, actualsolno, noofrowstoreduce, degstotest] = problem_tdoa_pose_5pt(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 20;
 
-n = 5;
-
-if nargin < 1 || isempty(data0)
-    data0 = randi(50,4*n,1);
-end
-
-xx = create_vars(n);
-nvect=[0 ; 0 ; 1];
-U = reshape(data0(1:(3*n)),3,n);
-cosangles = reshape(data0((3*n+1):(4*n)),1,n);
-C = xx(1:3);
-N = [xx(4:5);1];
-
-for k = 1:n;
-    eqs(k,1)=(U(:,k)-C)'*N*N'*(U(:,k)-C) - cosangles(k)^2 * (U(:,k)-C)'*(U(:,k)-C)*N'*N;
-end
-
-if nargout == 3
-    xx = create_vars(n+4*n);
-    oo = xx(1:n);
-    data = xx((n+1):end);
-    
-    xx = create_vars(n);
-    nvect=[0 ; 0 ; 1];
-    U = reshape(data(1:(3*n)),3,n);
-    cosangles = reshape(data((3*n+1):(4*n)),1,n);
-    C = xx(1:3);
-    N = [xx(4:5);1];
-    
-    for k = 1:n;
-        eqs_data(k,1)=(U(:,k)-C)'*N*N'*(U(:,k)-C) - cosangles(k)^2 * (U(:,k)-C)'*(U(:,k)-C)*N'*N;
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
+    end
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
     end
 end
 
+for k = 1:5
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
+end
+data = transpose(data);
+%% Formatting the data structure
+
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+addpath('eqs');
+if nargout >=7
+    eqs = Eqs_tdoa_pose_5pt(p{:});
+else
+    eqs = [];
+end
+rmpath('eqs');
+
+if nargout >= 8
+    actualsolno = 20;
+end
+vars = transpose(xx);
+coeffconsts = transpose(data);
+hiddenvarnum = 4;
+infinitePrec = 2;
+sizeofcombs = [2];
+polycomb=[];
+noofrowstoreduce=size(eqs,2);
+degstotest = [];
+end

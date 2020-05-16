@@ -1,33 +1,47 @@
-function [ eqs, data0, eqs_data ] = problem_opt_pnp_nakanoQ( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, theoreticalsolncnt, noofrowstoreduce] = problem_opt_pnp_nakanoQ(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 81;
 
-if nargin < 1 || isempty(data0)
-    M = randi(200,9,9);
-    M = M+M';
-    data0 = M(:);
- 
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
+    end
+else
+    for i = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(i)},''));
+        eval(strjoin({'data(',num2str(i),') = ', 'c',num2str(i),';'},''));
+    end    
 end
 
-M = reshape(data0,9,9);
-xx = create_vars(4);
-a = xx(1);
-b = xx(2);
-c = xx(3);
-d = xx(4);
+for k = 1:4
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
+end
+data = transpose(data);
 
-R = [a^2+b^2-c^2-d^2 2*(b*c-a*d) 2*(b*d+a*c);...
-    2*(b*c+a*d) a^2-b^2+c^2-d^2 2*(c*d-a*b);...
-    2*(b*d-a*c) 2*(c*d+a*b) a^2-b^2-c^2+d^2];
-r = R(:);
-matMr = reshape(M*r,3,3);
-P = R'*matMr-matMr'*R;
-Q = matMr*R'-R*matMr';
+%% Formatting the data structure
 
-eqs = [P(1,2);P(1,3);P(2,3);Q(1,2);Q(1,3);Q(2,3)];
-eqs = [eqs;a^2+b^2+c^2+d^2-1];
-
-
-if nargout == 3
-    xx = create_vars(4+81);
-    eqs_data = problem_opt_pnp_nakanoQ(xx(5:end));
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+if nargout >=7
+    eqs = Eqs_opt_pnp_nakanoQ(p{:});
+else
+    eqs = [];
 end
 
+if nargout >= 8
+    theoreticalsolncnt = 10;
+end
+vars = transpose(xx);
+
+coeffconsts = transpose(data);
+hiddenvarnum = -1;
+infinitePrec = 2;
+sizeofcombs = [3];
+% polycomb=[2;6;7];
+polycomb = [2;6;8];
+noofrowstoreduce = size(eqs,2);
+end

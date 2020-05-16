@@ -1,26 +1,58 @@
-function [ eqs, data0, eqs_data ] = problem_stitching2( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, actualsolno, noofrowstoreduce, heuristictemplatesize] = problem_stitching2(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 32;
+numofvars = 2;
 
-if nargin < 1 || isempty(data0)
-    data0 = randi(100,32,1);
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+        for k = 1:numofvars
+            syms(strjoin({'a',num2str(k)},''));
+            eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
+        end
+    else
+        for k = 1:numofvars
+            eval(strjoin({'xx(',num2str(k), ') = data(',num2str(k),');'}, ''));
+        end
+        data = data((numofvars+1):end);
+    end
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
+    end
+    
+    
+    for k = 1:numofvars
+        syms(strjoin({'a',num2str(k)},''));
+        eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
+    end
 end
-
-c2 = data0(17:32);
-c1 = data0(1:16);
-
-mm = [ 6     5     4     4     3     3     2     2     2     1     1     1     0     0     0     0;...
-     3     3     3     2     3     2     3     2     1     3     2     1     3     2     1     0];
- 
-eqs = [multipol(c1',mm);multipol(c2',mm)];
+data = transpose(data);
 
 
-if nargout == 3
-   xx = create_vars(2+32);
-   data = xx(3:end);
-   c2 = data(17:32);
-   c1 = data(1:16);
-   x1 = xx(1);
-   x2 = xx(2);
-   eqs_data = [sum(c1'.*x1.^mm(1,:).*x2.^mm(2,:));sum(c2'.*x1.^mm(1,:).*x2.^mm(2,:))];
-   
+%% Formatting the data structure
+
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+addpath('eqs');
+if nargout >=7
+    eqs = Eqs_problem_stitching(p{:});
+else
+    eqs = [];
 end
+rmpath('eqs');
 
+if nargout >= 8
+    actualsolno = 18;
+end
+vars = transpose(xx);
+coeffconsts = transpose(data);
+hiddenvarnum = 1;
+infinitePrec = 2;
+sizeofcombs = [1];
+polycomb=[1;2];
+noofrowstoreduce=0;
+heuristictemplatesize = 36;
+end

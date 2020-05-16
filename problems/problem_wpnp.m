@@ -1,27 +1,48 @@
-function [ eqs, data0, eqs_data ] = problem_wpnp( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, actualsolno, noofrowstoreduce, degstotest] = problem_wpnp(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 9;
 
-if nargin < 1 || isempty(data0)
-    data0 = randi(50,9,1);
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
+    end
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
+    end
 end
 
-q = create_vars(4);
-R = quat2rot(q);
-A = diag(data0(1:3));
-B = reshape(data0(4:end),2,3);
-L = sum(sum((R(1:2,:)*A-B).^2));
-eqs = diff(L);
-eqs = eqs(:);
-
-if nargout == 3
-    xx = create_vars(4+9);
-    data = xx(5:end);
-
-    q = create_vars(4);
-    R = quat2rot(q);
-    A = diag(data(1:3));
-    B = reshape(data(4:end),2,3);
-    L = sum(sum((R(1:2,:)*A-B).^2));
-    eqs_data = diff(L);
-    eqs_data = eqs_data(1:4)';
+for k = 1:4
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
 end
+data = transpose(data);
 
+%% Formatting the data structure
+
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+addpath('eqs');
+if nargout >=7
+    eqs = Eqs_wpnp(p{:});
+else
+    eqs = [];
+end
+rmpath('eqs');
+
+if nargout >= 8
+    actualsolno = 20;
+end
+vars = transpose(xx);
+coeffconsts = transpose(data);
+hiddenvarnum = 1;
+infinitePrec = 2;
+sizeofcombs = [2;3;4];
+polycomb=[];
+noofrowstoreduce=4;
+degstotest = [];
+end

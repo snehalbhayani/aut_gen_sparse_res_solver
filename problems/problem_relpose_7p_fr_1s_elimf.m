@@ -1,145 +1,47 @@
-function [ eqs, data0, eqs_data ] = problem_relpose_7p_fr_1s_elimf( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, actualsolno, noofrowstoreduce, heurisitictemplatesize ] = problem_relpose_7p_fr_1s_elimf(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 41;
 
-if nargin < 1 || isempty(data0)
- 
-    data0 = randi(50,41,1);
- 
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
+    end
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
+    end
 end
 
-xx = create_vars(3);
 
-f3 = xx(1);
-f6 = xx(2);
-lam = xx(3);
-%w = xx(4);
-
-h1 = data0(1:6);
-h2 = data0(7:12);
-h3 = data0(13:18);
-h4 = data0(19:24);
-h5 = data0(25:30);
-h6 = data0(31:36);
-h7 = data0(37:41);
-vv = [lam*f3 lam*f6 f3 f6 lam 1];
-
-f1 = vv*h1;
-f2 = vv*h2;
-f4 = vv*h3;
-f5 = vv*h4;
-f7 = vv*h5;
-f8 = vv*h6;
-f9 = 1;
-vv2 = [lam*f3 f3 f6 lam 1];
-g1 = vv2*h7;
-
-
-F = [f1 f4 f7;f2 f5 f8;f3 f6 f9];
-% K = [1 0 0;0 1 0;0 0 w];
-% E = K'*F;
-
-f11 = F(1,1);
-f21 = F(2,1);
-f31 = F(3,1);
-f12 = F(1,2);
-f22 = F(2,2);
-f32 = F(3,2);
-f13 = F(1,3);
-f23 = F(2,3);
-f33 = F(3,3);
-
-
-
-% eqs = [f13*f22*f31-f12*f23*f31-f13*f21*f32+f11*f23*f32+f12*f21*f33-f11*f22*f33;...
-%      f11*f13*f23*f31+f21*f23^2*f31+f12*f13*f23*f32+f22*f23^2*f32-f11*f13*f21*f33-f12*f13*f22*f33-f21^2*f23*f33-f22^2*f23*f33+f23*f31^2*f33+f23*f32^2*f33-f21*f31*f33^2-f22*f32*f33^2;...
-%      f11*f13^2*f31+f13*f21*f23*f31+f12*f13^2*f32+f13*f22*f23*f32-f11^2*f13*f33-f12^2*f13*f33-f11*f21*f23*f33-f12*f22*f23*f33+f13*f31^2*f33+f13*f32^2*f33-f11*f31*f33^2-f12*f32*f33^2;...
-%      f11*f13^2*f21+f12*f13^2*f22-f11^2*f13*f23-f12^2*f13*f23+f13*f21^2*f23+f13*f22^2*f23-f11*f21*f23^2-f12*f22*f23^2+f13*f21*f31*f33-f11*f23*f31*f33+f13*f22*f32*f33-f12*f23*f32*f33];
- 
-eqs =[ f13*f22*f31-f12*f23*f31-f13*f21*f32+f11*f23*f32+f12*f21*f33-f11*f22*f33;...
-      f11*f13*f31*f32+f21*f23*f31*f32+f12*f13*f32^2+f22*f23*f32^2-f11*f12*f31*f33-f21*f22*f31*f33-f12^2*f32*f33+f13^2*f32*f33-f22^2*f32*f33+f23^2*f32*f33-f12*f13*f33^2-f22*f23*f33^2;...
-      f11*f13*f31^2+f21*f23*f31^2+f12*f13*f31*f32+f22*f23*f31*f32-f11^2*f31*f33+f13^2*f31*f33-f21^2*f31*f33+f23^2*f31*f33-f11*f12*f32*f33-f21*f22*f32*f33-f11*f13*f33^2-f21*f23*f33^2;...
-      f11*f12*f31^2+f21*f22*f31^2-f11^2*f31*f32+f12^2*f31*f32-f21^2*f31*f32+f22^2*f31*f32-f11*f12*f32^2-f21*f22*f32^2+f12*f13*f31*f33+f22*f23*f31*f33-f11*f13*f32*f33-f21*f23*f32*f33];
-  
- 
-eqs = [eqs;lam*f6-g1];
-
-
-
-if nargout == 3
-    xx = create_vars(3+41);
-    data = xx(4:end);
-    
- 
-
-f3 = xx(1);
-f6 = xx(2);
-lam = xx(3);
-%w = xx(4);
-
-h1 = data(1:6);
-h2 = data(7:12);
-h3 = data(13:18);
-h4 = data(19:24);
-h5 = data(25:30);
-h6 = data(31:36);
-h7 = data(37:41);
-vv = [lam*f3 lam*f6 f3 f6 lam 1];
-
-f1 = vv*h1;
-f2 = vv*h2;
-f4 = vv*h3;
-f5 = vv*h4;
-f7 = vv*h5;
-f8 = vv*h6;
-f9 = 1;
-vv2 = [lam*f3 f3 f6 lam 1];
-g1 = vv2*h7;
-
-
-F = [f1 f4 f7;f2 f5 f8;f3 f6 f9];
-% K = [1 0 0;0 1 0;0 0 w];
-% E = K'*F;
-
-f11 = F(1,1);
-f21 = F(2,1);
-f31 = F(3,1);
-f12 = F(1,2);
-f22 = F(2,2);
-f32 = F(3,2);
-f13 = F(1,3);
-f23 = F(2,3);
-f33 = F(3,3);
-
-
-eqs_data =[ f13*f22*f31-f12*f23*f31-f13*f21*f32+f11*f23*f32+f12*f21*f33-f11*f22*f33;...
-      f11*f13*f31*f32+f21*f23*f31*f32+f12*f13*f32^2+f22*f23*f32^2-f11*f12*f31*f33-f21*f22*f31*f33-f12^2*f32*f33+f13^2*f32*f33-f22^2*f32*f33+f23^2*f32*f33-f12*f13*f33^2-f22*f23*f33^2;...
-      f11*f13*f31^2+f21*f23*f31^2+f12*f13*f31*f32+f22*f23*f31*f32-f11^2*f31*f33+f13^2*f31*f33-f21^2*f31*f33+f23^2*f31*f33-f11*f12*f32*f33-f21*f22*f32*f33-f11*f13*f33^2-f21*f23*f33^2;...
-      f11*f12*f31^2+f21*f22*f31^2-f11^2*f31*f32+f12^2*f31*f32-f21^2*f31*f32+f22^2*f31*f32-f11*f12*f32^2-f21*f22*f32^2+f12*f13*f31*f33+f22*f23*f31*f33-f11*f13*f32*f33-f21*f23*f32*f33];
-
-
-eqs_data = [eqs_data;lam*f6-g1];
-
-
-    totalsyms = 3 + 41;
-    noofvars = 3;
-    ipparams = strcat('a',num2str(1));
-    for i = 2:totalsyms
-        if i > noofvars
-            ipparams = strjoin({ipparams, ',c', num2str(i-noofvars)}, '');
-        else
-            ipparams = strjoin({ipparams, ',a', num2str(i)}, '');
-        end
-    end
-    
-    fileID = fopen('Eqs_problem_relpose_7p_fr_1s_elimf.m','w');
-    fprintf(fileID, '%s', strjoin({'function eqs = retrieve_eqs(', ipparams, ') '},''));
-    fprintf(fileID, '\n');
-    for i = 1:size(eqs,1)
-        fprintf(fileID, '%s', strjoin({'eqs(', num2str(i),') = ',char(eqs_data(i,1), true, [], true, noofvars), ';'},''));
-        fprintf(fileID, '\n');
-    end
-    fprintf(fileID, '\n');
-    fprintf(fileID, '%s', 'end');
-    fclose(fileID);
-
+for k = 1:3
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
 end
+data = transpose(data);
 
+%% Formatting the data structure
+
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+if nargout >=7
+    eqs = Eqs_problem_relpose_7p_fr_1s_elimf(p{:});
+else
+    eqs = [];
+end
+vars = transpose(xx);
+if nargout >= 8
+    actualsolno = 19;
+end
+coeffconsts = transpose(data);
+hiddenvarnum = 3;
+infinitePrec = 2;
+sizeofcombs = [1;2;3];
+polycomb=[]; 
+% polycomb=[1;5]; 
+noofrowstoreduce = 0;
+heurisitictemplatesize = 4500;
+end

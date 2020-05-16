@@ -1,33 +1,47 @@
-function [ eqs, data0, eqs_data ] = problem_opt_pnp( data0 )
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, theoreticalsolncnt, noofrowstoreduce,degstotest] = problem_opt_pnp(data)
+tic;
+%% Formatting the  structures -- coefficients and data 
+numOfDataCoeff = 220;
 
-if nargin < 1 || isempty(data0)
-    data0 = randi(50,20*11,1);
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
+    end
+else
+    for i = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(i)},''));
+        eval(strjoin({'data(',num2str(i),') = ', 'c',num2str(i),';'},''));
+    end    
 end
 
-M = reshape(data0,20,11);
-xx = create_vars(4);
-a = xx(1);
-b = xx(2);
-c = xx(3);
-d = xx(4);
-alfa = [1 a^2 a*b a*c a*d b^2 b*c b*d c^2 c*d d^2]';
-f = alfa'*(M'*M)*alfa;
-eqs = diff(f);
-eqs = eqs(:);
+for k = 1:4
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
+end
+data = transpose(data);
 
-if nargout == 3
-    xx = create_vars(4+20*11);
-    data = xx(5:end);
-    M = reshape(data,20,11);
-    a = xx(1);
-    b = xx(2);
-    c = xx(3);
-    d = xx(4);
-    alfa = [1 a^2 a*b a*c a*d b^2 b*c b*d c^2 c*d d^2]';
-    f = alfa'*(M'*M)*alfa;
-    eqs_data = diff(f);
-    eqs_data = eqs_data(:);
+%% Formatting the data structure
 
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
 
+if nargout >=7
+    eqs = Eqs_problem_opt_pnp(p{:});
+else
+    eqs = [];
+end
+vars = transpose(xx);
+if nargout >= 8
+    theoreticalsolncnt = 81;
 end
 
+coeffconsts = transpose(data);
+hiddenvarnum = 3;
+infinitePrec = 2;
+sizeofcombs = [3;4;5;6];
+polycomb=[];
+noofrowstoreduce = 4;
+degstotest = [];
+end

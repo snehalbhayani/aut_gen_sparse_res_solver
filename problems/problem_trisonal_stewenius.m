@@ -1,56 +1,48 @@
-function [eqs,data0,eqs_data] = problem_trisonal_stewenius(data0)
+function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, eqs, actualsolno, noofrowstoreduce,degstotest] = problem_trisonal_stewenius(data)
+tic;
+%% Formatting the data structures -- coefficients and data 
+numOfDataCoeff = 28;
 
-if nargin < 1 || isempty(data0)
-    data0 = randi(64,7*4,1);
-end
-
-xx = create_vars(4);
-Ti = reshape(data0,7,4);
-T = Ti*xx;
-
-eq1 = T(5)*T(7)*(2*T(6)+T(7))+T(5)^2*T(7)-T(1);
-eq2 = -T(6)*(T(5)+2*T(6)+T(7))-T(2);
-eq3 = T(5)*(T(6)+T(7))-T(3);
-eq4 = T(7)*(T(5)+T(6))-T(4);
-
-eqs = [eq1; eq2; eq3; eq4];
-
-if nargout == 3
-    xx = create_vars(4+7*4);
-    data = xx(5:end);
-    
-    Ti = reshape(data,7,4);
-    T = Ti*xx(1:4);
-    
-    eq1 = T(5)*T(7)*(2*T(6)+T(7))+T(5)^2*T(7)-T(1);
-    eq2 = -T(6)*(T(5)+2*T(6)+T(7))-T(2);
-    eq3 = T(5)*(T(6)+T(7))-T(3);
-    eq4 = T(7)*(T(5)+T(6))-T(4);
-    
-    eqs_data = [eq1; eq2; eq3; eq4];
-    
-    totalsyms = 4 + 28;
-    noofvars = 4;
-    ipparams = strcat('a',num2str(1));
-    for i = 2:totalsyms
-        if i > noofvars
-            ipparams = strjoin({ipparams, ',c', num2str(i-noofvars)}, '');
-        else
-            ipparams = strjoin({ipparams, ',a', num2str(i)}, '');
-        end
+if nargin == 1
+    if data == -1
+        data = randn(1,numOfDataCoeff);
+    else
+%         disp('Obtained data vector');
     end
-    
-    fileID = fopen('Eqs_problem_trisonal_stewenius.m','w');
-    fprintf(fileID, '%s', strjoin({'function eqs = retrieve_eqs(', ipparams, ') '},''));
-    fprintf(fileID, '\n');
-    for i = 1:size(eqs,1)
-        fprintf(fileID, '%s', strjoin({'eqs(', num2str(i),') = ',char(eqs_data(i,1), true, [], true, noofvars), ';'},''));
-        fprintf(fileID, '\n');
+else
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
     end
-    fprintf(fileID, '\n');
-    fprintf(fileID, '%s', 'end');
-    fclose(fileID);
-    
-end
 end
 
+
+for k = 1:4
+    syms(strjoin({'a',num2str(k)},''));
+    eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
+end
+data = transpose(data);
+
+%% Formatting the data structure
+
+B = transpose([transpose(xx);data]);
+p = mat2cell(B,1,ones(1,numel(B)));
+if nargout >=7
+    eqs = Eqs_problem_trisonal_stewenius(p{:});
+else
+    eqs = [];
+end
+if nargout >= 8
+    actualsolno = 9;
+end
+
+vars = transpose(xx);
+coeffconsts = transpose(data);
+hiddenvarnum = 4;
+sizeofcombs=[2];
+infinitePrec=2;
+% polycomb=[];
+polycomb = []; 
+noofrowstoreduce = 0;
+degstotest = [];
+end
