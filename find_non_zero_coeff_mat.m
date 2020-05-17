@@ -132,49 +132,49 @@ tempextendedbasis = extendedbasis(:,1:sizeoffinalres);
 disp(tempextendedbasis);
 numerr = 1e-10;
 
-C0 = B; C1 = A;
-
-A1 = -C0(1:end-sizeoffinalres, 1:end-sizeoffinalres);
-A2 = -C0(1:end-sizeoffinalres, end-sizeoffinalres+1:end);
-B1 = C1(end-sizeoffinalres+1:end, 1:end-sizeoffinalres);
-B2 = C1(end-sizeoffinalres+1:end, end-sizeoffinalres+1:end);
-X = B2 - (B1/A1) * A2;
-
-[X, nullspacesize, depdXcols, nzrows, depdCcols, indepdCcols, mdepdXcols, mindepdXcols, indepdCrows, rowstorem] = remove_more_0_eigvalues_by_deflation(X);
-nullspacesize1=nullspacesize;
-depdXcols1=depdXcols;
-nzrows1=nzrows;
-depdCcols1=depdCcols;
-indepdCcols1=indepdCcols;
-mdepdXcols1=mdepdXcols;
-mindepdXcols1=mindepdXcols;
-indepdCrows1=indepdCrows;
-rowstorem1=rowstorem;
-
-[X, nullspacesize, depdXcols, nzrows, depdCcols, indepdCcols, mdepdXcols, mindepdXcols, indepdCrows, rowstorem] = remove_more_0_eigvalues_by_deflation(X);
-nullspacesize2=nullspacesize;
-depdXcols2=depdXcols;
-nzrows2=nzrows;
-depdCcols2=depdCcols;
-indepdCcols2=indepdCcols;
-mdepdXcols2=mdepdXcols;
-mindepdXcols2=mindepdXcols;
-indepdCrows2=indepdCrows;
-rowstorem2=rowstorem;
-
-[X, nullspacesize, depdXcols, nzrows, depdCcols, indepdCcols, mdepdXcols, mindepdXcols, indepdCrows, rowstorem] = remove_more_0_eigvalues_by_deflation(X);
-nullspacesize3=nullspacesize;
-depdXcols3=depdXcols;
-nzrows3=nzrows;
-depdCcols3=depdCcols;
-indepdCcols3=indepdCcols;
-mdepdXcols3=mdepdXcols;
-mindepdXcols3=mindepdXcols;
-indepdCrows3=indepdCrows;
-rowstorem3=rowstorem;
+% C0 = B; C1 = A;
+% 
+% A1 = -C0(1:end-sizeoffinalres, 1:end-sizeoffinalres);
+% A2 = -C0(1:end-sizeoffinalres, end-sizeoffinalres+1:end);
+% B1 = C1(end-sizeoffinalres+1:end, 1:end-sizeoffinalres);
+% B2 = C1(end-sizeoffinalres+1:end, end-sizeoffinalres+1:end);
+% X = B2 - (B1/A1) * A2;
+% 
+% [X, nullspacesize, depdXcols, nzrows, depdCcols, indepdCcols, mdepdXcols, mindepdXcols, indepdCrows, rowstorem] = remove_more_0_eigvalues_by_deflation(X);
+% nullspacesize1=nullspacesize;
+% depdXcols1=depdXcols;
+% nzrows1=nzrows;
+% depdCcols1=depdCcols;
+% indepdCcols1=indepdCcols;
+% mdepdXcols1=mdepdXcols;
+% mindepdXcols1=mindepdXcols;
+% indepdCrows1=indepdCrows;
+% rowstorem1=rowstorem;
+% 
+% [X, nullspacesize, depdXcols, nzrows, depdCcols, indepdCcols, mdepdXcols, mindepdXcols, indepdCrows, rowstorem] = remove_more_0_eigvalues_by_deflation(X);
+% nullspacesize2=nullspacesize;
+% depdXcols2=depdXcols;
+% nzrows2=nzrows;
+% depdCcols2=depdCcols;
+% indepdCcols2=indepdCcols;
+% mdepdXcols2=mdepdXcols;
+% mindepdXcols2=mindepdXcols;
+% indepdCrows2=indepdCrows;
+% rowstorem2=rowstorem;
+% 
+% [X, nullspacesize, depdXcols, nzrows, depdCcols, indepdCcols, mdepdXcols, mindepdXcols, indepdCrows, rowstorem] = remove_more_0_eigvalues_by_deflation(X);
+% nullspacesize3=nullspacesize;
+% depdXcols3=depdXcols;
+% nzrows3=nzrows;
+% depdCcols3=depdCcols;
+% indepdCcols3=indepdCcols;
+% mdepdXcols3=mdepdXcols;
+% mindepdXcols3=mindepdXcols;
+% indepdCrows3=indepdCrows;
+% rowstorem3=rowstorem;
     
 
-pairs = transpose(combnk(setdiff(1:size(tempextendedbasis,2), rowstorem),2));
+pairs = transpose(combnk(1:size(tempextendedbasis,2),2));
 
 ops = eye(size(tempextendedbasis,1));
 solverTemplate = zeros(size(tempextendedbasis));

@@ -1,90 +1,3 @@
-removeexcessrows := proc(B, T, eqs, vars) 
-local counter, groupsofdifs, modifiedCred, found, tempT, ti, crowstobedelet, rowColCnts, tempCred, Cred, noofTs, tn, C, solverrank, testcoeffmat, minTn, Tn, ii, baks, k, Bset, minmonnorm, isbnpresent, Bn, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, minmonomialnorms, allTs, allBs, allBbss, allBns, currentminsolver, bestbasisindx, delt, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, fIndex, index, ll, tempolddigs, indicestotest:
-Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t)[1] end proc, T), `+`):
-C := polytomat(convert(T, list), B, eval(eqs), vars, numelems(B), Tn): 
-
-# =============================================================================================================
-# =============================================================================================================
-# For tracking an indice, we add '1' to the end of each element in the list of monomial multiples
-noofTs := ArrayTools[Size](T)[2]:
-
-# =============================================================================================================
-
-# =============================================================================================================
-# =============================================================================================================
-noofnonzelems := infinity:
-for counter from 1 to 100 do
-    randomize():
-    Cred := LinearAlgebra[Copy](LinearAlgebra[Modular][Mod](ithprime(1000), C, integer[8])):
-	
-    T1 := T:
-	tn := 0:
-	for k to  noofTs do
-		T1[k] := convert((map(proc (t) options operator, arrow; [op(convert(T1[k][t], list)), t+tn] end proc, [seq(1 .. ArrayTools[Size](T1[k])[1])])), Matrix):
-		tn := tn + ArrayTools[Size](T1[k])[1]:
-	end do:
-
-    tempCred := Cred:
-    rowColCnts := ArrayTools[Size](Cred):
-    crowstobedelet := []:
-	
-    ll := max(map(proc (ti) options operator, arrow; ArrayTools[Size](ti)[1] end proc, T1)):
-    indicestotest := [seq(1..Tn)]: 
-    temp := ListTools[Reverse](ListTools[Reverse]([seq(1..convert(map(proc (t) options operator, arrow; ArrayTools[Size](t)[1] end proc, T1), `+`))])[1..ArrayTools[Size](T1[-1],1)]):
-        
-    indicestoskip := []:
-    #indicestoskip := [op(indicestoskip),op(select(i -> convert(convert(T1[-1][i  - (tn-ArrayTools[Size](T1[-1],1)) ,..-2], list), `+`) <= 1, temp))]:
-    temp := convert(convert(temp, set) minus convert(indicestoskip,set), list):
-    indicestotest := convert(convert(indicestotest, set) minus convert(indicestoskip,set), list):
-    p1 := ListTools[Reverse](convert(convert(indicestotest,set) minus convert(temp,set), list)):
-    indicestotest := [op(combinat[randperm](temp)), op((p1[1..1])), op(combinat[randperm](p1[2..])) ]:
-
-    for i in indicestotest do 
-	for ti to noofTs do 
-		tempT := T1[ti]; 
-		found := select(proc (ti1) options operator, arrow; T1[ti][ti1][-1] = i end proc, [seq(1 .. ArrayTools[Size](T1[ti])[1])]); 
-		if numelems(found) > 0 then 
-            tempT := LinearAlgebra[DeleteRow](T1[ti], found); 
-            break: 
-		end if: 
-	end do; 
-	modifiedCred := LinearAlgebra[DeleteRow](tempCred, [op(crowstobedelet), i]):
-	testcoeffmat := LinearAlgebra[Modular][Mod](ithprime(1000), modifiedCred, integer[8]):
-	solverrank := LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat):
-	
-	if ArrayTools[Size](tempT)[1] > 0 then 
-		if solverrank = rowColCnts[2] then
-			
-			tempTT := T1:
-			tempTT[ti] := LinearAlgebra[DeleteRow](tempTT[ti], found):
-			temp := convert(tempTT[-1], list, nested = true): 
-			bbs := map(proc (i1) options operator, arrow; select(proc (j1) options operator, arrow; B[j1] = [temp[i1][1], op(temp[i1][2..-2])] end proc, [seq(1 .. numelems(B))])[1] end proc, [seq(1 .. numelems(temp))]): 
-			gbs := convert(convert([seq(1 .. numelems(B))], set) minus convert(bbs, set), list):
-            rankofgdblck := LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1 .. convert(map(proc (t) options operator, arrow; ArrayTools[Size](t)[1] end proc, tempTT[() .. -2]), `+`), gbs]):
-			
-			if rankofgdblck = numelems(gbs)   then
-				Cred := modifiedCred:
-				T1[ti] := LinearAlgebra[DeleteRow](T1[ti], found):
-				crowstobedelet := [op(crowstobedelet), i]:
-				rowColCnts := ArrayTools[Size](Cred):
-			end if:
-		end if:		
-	end if:
-end do:
-
-    for k to ArrayTools[Size](T)[2] do
-	    T1[k] := convert((map(proc (t) options operator, arrow; [op(convert(T1[k][t][..-2], list))] end proc, [seq(1 .. ArrayTools[Size](T1[k])[1])])), Matrix):
-    end do:
-
-if ArrayTools[Size](Cred,1) = ArrayTools[Size](Cred,2) then break: end if:
-end do:
-
-T2 := T1:
-
-return T2:
-end proc:
-
-
 findsparseresultnat:= proc(eqsinput, vars, sizeofcombs, polycomb, actualnoofsolns, heurisiticbasislength) 
 local counter, newpredeigsz, groupsofdifs, modifiedCred, found, tempT, ti, crowstobedelet, rowColCnts, tempCred, Cred, noofTs, tn, C, solverrank, testcoeffmat, minTn, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, minmonomialnorms, allTs, allBs, allBbss, allBns, currentminsolver, bestbasisindx, delt, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, fIndex, index, eqs, ll, tempolddigs, indicestotest:
 delt := [ -0.01, 0.01, 0]:
@@ -103,21 +16,12 @@ v[fIndex] := vertices(P[fIndex]):
 A[fIndex] := vertices(P[fIndex]):
 v := convert(v, list):
 
-counter := combinat[cartprod](map(i-> [1,2,3], [seq(1..numelems(vars))])):
-
-simplex := counter[nextvalue]():
-print(simplex);
-simplex := map(j -> map(i ->  `if`(i = j, simplex[i], 0), [seq(1 .. numelems(vars))]), [seq(1 .. numelems(vars)+1)]):
-P[fIndex] := convhull(op(simplex)):
-v[fIndex] := vertices(P[fIndex]):
-A[fIndex] := vertices(P[fIndex]):
-print(A[fIndex]);
-
 if numelems(polycomb) = 0 then 
     variouscombinations := (map(proc (l) options operator, arrow; seq(combinat[choose]([seq(1 .. numelems(P))], l)) end proc, sizeofcombs)):
 else
     variouscombinations:= [polycomb]: 
 end if:
+
 unassign('minkowskis'); 
 for vci to numelems(variouscombinations) do 
 	comb := variouscombinations[vci]:
@@ -140,31 +44,16 @@ bestbasisindx := -1:
 oldpredeigsz := 10000000:
 for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
 	randomize():
-    
 	printf("Trying out polytopes, %s \n", convert(variouscombinations[combind],string));
-
-    # for delta in [[-0.1e-1, 0, 0, 0, 0.1e-1, -0.1e-1, 0.1e-1, -0.1e-1]] do # hiding a7
-    # for delta in [[0.1e-1, 0.1e-1, 0.1e-1, 0.1e-1, 0, 0.1e-1]] do # hiding a3
-    # for delta in [[-0.010000, -0.010000, -0.010000, 0.010000, 0.000000, 0.010000]] do
-    # for delta in [[0.000000, -0.010000, -0.010000, 0.000000 ]] do # for a4 for p2pf
-    # for delta in [[0.010000, 0.010000, 0.010000, 0.010000, -0.010000, 0.000000]] do # a1 for p6pf alternate
-    # for delta in [[0.010000, 0.010000, 0.010000, 0.010000, 0.010000, 0.000000]] do # for a1 p6pf original
-
-    deltasiterator := convert(convert(map(c -> c, combinat[permute](map(k-> op(delt), [seq(1..numelems(vars))]), numelems(vars))), set),list):	    
-    randomize():
-    for delta in combinat[randperm](deltasiterator)[1..numelems(deltasiterator)][1..100] do	
-
-    # deltasiterator := combinat[cartprod](map(proc (i1) options operator, arrow; map(proc (j) options operator, arrow; delt[j] end proc, [seq(1 .. 3)]) end proc, [seq(1 .. numelems(vars))])):	
-    # while not deltasiterator[finished] do
-    #    delta := deltasiterator[nextvalue]():
+    deltasiterator := combinat[cartprod](map(proc (i1) options operator, arrow; map(proc (j) options operator, arrow; delt[j] end proc, [seq(1 .. 3)]) end proc, [seq(1 .. numelems(vars))])):	
+    while not deltasiterator[finished] do
+       delta := deltasiterator[nextvalue]():
         
 		translatedconvhull := minkowskisum(minkowskis[combind], convhull(convert(delta, rational))):
 		if dim(translatedconvhull) < numelems(vars) then 
     			next: 
-		end if:
-     
-		hlfsps := convert(hspaces(translatedconvhull), list):
-		hp1s := map(rel -> convert(`~`[`*`](lhs(rel), ` $`, vars), `+`) <= rhs(rel), hlfsps): 
+		end if:     
+		hp1s := map(rel -> convert(`~`[`*`](lhs(rel), ` $`, vars), `+`) <= rhs(rel), convert(hspaces(translatedconvhull), list)): 
 
 		try
 			B := convert(IntegerPoints1(hp1s, vars), list); 
@@ -174,18 +63,14 @@ for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
 		end try:
 		Bn := numelems(B):
 
-		# Skip if no basis was found
 		if  Bn = 0 then next: end if:
-        if Bn > 500 then next: end if:
-
 		minmonnorm := norm(convert(ListTools[FindMinimalElement](B, proc (b1, b2) options operator, arrow; norm(convert(b1-b2,Vector)) = 0 end proc),Vector)):
-		if minmonnorm <> 0 then next: end if:
+		# if minmonnorm <> 0 then next: end if:
 
 		Bset := convert(B, set); 
 		unassign('T'); 
 		for k to numelems(EE) do 
 			T[k] := []:
-
 			baks := map(proc (belement) options operator, arrow; op(select(proc (diffba) options operator, arrow; foldl(`and`, true, op(`~`[`>=`](diffba, ` $`, map(proc (ii) options operator, arrow; 0 end proc, [seq(1 .. numelems(vars))])))) end proc, map(proc (aelement) options operator, arrow; `~`[`-`](belement, aelement) end proc, A[k]))) end proc, B):
 			for ii to numelems(A[k])-1 do 
 				baks := ListTools[FindRepetitions](baks):
@@ -193,8 +78,9 @@ for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
 			T[k] := convert(convert(convert(baks, set), list), Matrix): 
 		end do:
 		T := convert(T,list):
-		Tn := convert(map(at -> ArrayTools[Size](T[at])[1], [seq(1..numelems(EE))]), `+`):
-		minTn := min(map(at -> ArrayTools[Size](T[at])[1], [seq(1..numelems(EE))])):
+		Tn := convert(map(t->ArrayTools[Size](t,1), T), `+`):
+		minTn := min(map(t->ArrayTools[Size](t,1), T)):
+
 		if Tn >= Bn and minTn > 0 then 
 		        temp := convert(T[-1], list, nested = true): 
         		bbs := map(proc (i1) options operator, arrow; select(proc (j1) options operator, arrow; B[j1] = [temp[i1][1], op(temp[i1][2..])] end proc, [seq(1 .. Bn)])[1] end proc, [seq(1 .. numelems(temp))]): 

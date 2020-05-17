@@ -5,15 +5,16 @@ numOfDataCoeff = 27;
 
 if nargin == 1
     if data == -1
-        data = randn(1,numOfDataCoeff);
+        data = randn(numOfDataCoeff,1);
     else
 %         disp('Obtained data vector');
     end
 else
-    for k = 1:numOfDataCoeff
-        syms(strjoin({'c',num2str(k)},''));
-        eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
-    end
+%     for k = 1:numOfDataCoeff
+%         syms(strjoin({'c',num2str(k)},''));
+%         eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
+%     end
+    data = randi(30097,[numOfDataCoeff,1]);
 end
 
 
@@ -21,7 +22,7 @@ for k = 1:3
     syms(strjoin({'a',num2str(k)},''));
     eval(strjoin({'xx(',num2str(k),') = ', 'a',num2str(k),';'},''));
 end
-data = transpose(data);
+
 
 %% Formatting the data structure
 

@@ -1,9 +1,0 @@
-Cs=zeros(Bn,3*Bn);
-solTemplate=zeros(1,3);
-solTemplate(1,1) = s[1,1];
-B(1,1) = bbasis[1,1];
-solTemplate(1,2) = s[1,2];
-B(1,2) = bbasis[2,1];
-solTemplate(1,3) = s[1,3];
-B(1,3) = bbasis[3,1];
-allCss = mat2cell(Cs,Bn,ones(1,3) * Bn);

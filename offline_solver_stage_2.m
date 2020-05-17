@@ -3,7 +3,7 @@
 % mex reducemonbasis.c;
 addpath(folderName);
 data=randn(1,numOfDataCoeff);
-[indicesToRemove, indxOfZeroCoeffMat, zeigvalindx, solverTemplate, extendedbasis, nullspacesize1, depdXcols1, nzrows1, depdCcols1, indepdCcols1, mdepdXcols1, mindepdXcols1, indepdCrows1, rowstorem1, nullspacesize2, depdXcols2, nzrows2, depdCcols2, indepdCcols2, mdepdXcols2, mindepdXcols2, indepdCrows2, rowstorem2, nullspacesize3, depdXcols3, nzrows3, depdCcols3, indepdCcols3, mdepdXcols3, mindepdXcols3, indepdCrows3, rowstorem3] = reduce_mon_basis(data, numOfDataCoeff, folderName);
+[indicesToRemove, indxOfZeroCoeffMat, zeigvalindx, solverTemplate, extendedbasis] = reduce_mon_basis(data, numOfDataCoeff, folderName);
 
 templatePart2 = fileread('PEP_solver_template.m');
 templatePart1 = fileread(strcat(folderName, '/solver_template.m'));
@@ -39,36 +39,8 @@ fprintf(solverFile, '%s\n', strjoin({'classes =',mat2str(classes), ';'},''));
 fprintf(solverFile, '%s \n', strjoin({'monstocheck=',mat2str(monstocheck), ';'},''));
 
 fprintf(solverFile, '%s\n', strjoin({'indxOfZeroCoeffMat=',num2str(indxOfZeroCoeffMat), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'nullspacesize1=',num2str(nullspacesize1), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'nullspacesize2=',num2str(nullspacesize2), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'nullspacesize3=',num2str(nullspacesize3), ';'},''));
 
-fprintf(solverFile, '%s\n', strjoin({'depdXcols1=',mat2str(depdXcols1), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'nzrows1=',mat2str(nzrows1), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'depdCcols1=',mat2str(depdCcols1), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'indepdCcols1=',mat2str(indepdCcols1), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'mdepdXcols1=',mat2str(mdepdXcols1), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'mindepdXcols1=',mat2str(mindepdXcols1), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'indepdCrows1=',mat2str(indepdCrows1), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'rowstorem1=',mat2str(rowstorem1), ';'},''));
 
-fprintf(solverFile, '%s\n', strjoin({'depdXcols2=',mat2str(depdXcols2), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'nzrows2=',mat2str(nzrows2), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'depdCcols2=',mat2str(depdCcols2), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'indepdCcols2=',mat2str(indepdCcols2), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'mdepdXcols2=',mat2str(mdepdXcols2), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'mindepdXcols2=',mat2str(mindepdXcols2), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'indepdCrows2=',mat2str(indepdCrows2), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'rowstorem2=',mat2str(rowstorem2), ';'},''));
-
-fprintf(solverFile, '%s\n', strjoin({'depdXcols3=',mat2str(depdXcols3), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'nzrows3=',mat2str(nzrows3), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'depdCcols3=',mat2str(depdCcols3), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'indepdCcols3=',mat2str(indepdCcols3), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'mdepdXcols3=',mat2str(mdepdXcols3), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'mindepdXcols3=',mat2str(mindepdXcols3), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'indepdCrows3=',mat2str(indepdCrows3), ';'},''));
-fprintf(solverFile, '%s\n', strjoin({'rowstorem3=',mat2str(rowstorem3), ';'},''));
 
 fprintf(solverFile, '%s\n', strjoin({'zeigvalindx=',mat2str(zeigvalindx), ';'},''));
 % fprintf(solverFile, '%s\n', strjoin({'premultiplier=',mat2str(premultiplier), ';'},''));

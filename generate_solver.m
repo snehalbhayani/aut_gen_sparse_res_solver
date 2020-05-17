@@ -1,17 +1,18 @@
-function[] = generate_solver(folderName, problem_name)
+function[] = generate_solver(problemName)
 %%
+folderName = "solvers/"+problemName;
 try
     rmdir(folderName, 's');
 catch
     'No folder exists. Creating new one for now'
 end
 mkdir(folderName);
-solverGenFunc = str2func(problem_name);
-
-rmpath("eqs");addpath("eqs");
-[xx,hiddenvarnum, data, sizeofcombs, polycomb, ~, eqs, theoreticalsolncnt, noofrowstoreduce, heurisitictemplatesize] = solverGenFunc();
+solverGenFunc = str2func(problemName);
+addpath("eqs"); addpath("problems");
+[xx, hiddenvarnum, data, sizeofcombs, polycomb, ~, eqs, theoreticalsolncnt, noofrowstoreduce, heurisitictemplatesize] = solverGenFunc();
 acthiddenvarnum = hiddenvarnum;
-rmpath("eqs");
+rmpath("problems"); rmpath("eqs"); 
+
 if hiddenvarnum ~= -1
     hiddenvar = strjoin({'a',num2str(hiddenvarnum)},'');
 else
