@@ -10,11 +10,11 @@ if nargin == 1
 %         disp('Obtained data vector');
     end
 else
-%     for k = 1:numOfDataCoeff
-%         syms(strjoin({'c',num2str(k)},''));
-%         eval(strjoin({'data(',num2str(k),') = ', 'c',num2str(k),';'},''));
-%     end
-    data = randi(30097,[numOfDataCoeff,1]);
+    for k = 1:numOfDataCoeff
+        syms(strjoin({'c',num2str(k)},''));
+        eval(strjoin({'data(',num2str(k),',1) = ', 'c',num2str(k),';'},''));
+    end
+%     data = randi(30097,[numOfDataCoeff,1]);
 end
 
 
