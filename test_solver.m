@@ -1,7 +1,8 @@
 function [] = test_solver(problem_name, iter_cnt)
-clc;
+% clc;
 addpath('solvers/'+problem_name);
 addpath('problems');
+addpath('data');
 %% Tests are performed with the same value of R, T, F_true. All that changes is the sampled point correspondence measurements.
 
 all_failling_residual=[];
@@ -41,7 +42,7 @@ end
 %%
 disp(median(log10(all_results)));
 disp(mean(log10(all_results)));
-
+rmpath('data');
 rmpath('problems');
 rmpath('solvers/'+problem_name);
 end

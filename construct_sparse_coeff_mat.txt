@@ -90,10 +90,10 @@ for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
 		        #oldpredeigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
                 solverrank := LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat):
 	            if Bn = solverrank then
-                    found := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
-                    printf("| Predicted eigenvalue size ............................ %d | \n", found):
-    		        if found <= oldpredeigsz and convert(  map(i -> numelems(i) >= Bn, allBs), `and`)  then
-                        oldpredeigsz := found:
+                    newpredaigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
+                    printf("| Predicted eigenvalue size ............................ %d | \n", newpredaigsz):
+    		        if newpredaigsz <= oldpredeigsz and convert(  map(i -> numelems(i) >= Bn, allBs), `and`)  then
+                        oldpredeigsz := newpredaigsz:
                         if  LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..Tn - numelems(temp), gbs]) = numelems(gbs) then                                                                                    
                             allTs := [op(allTs), T]:
                             allBs := [op(allBs), B]:                        
@@ -133,12 +133,11 @@ printf("Solver := %d * %d, rank := %d worst case eigensolver size = %d\n", Tn,Bn
 Boriginal := B:
 temp := convert(T[-1], list, nested = true):
 oldpredeigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
-
 # Removal of rows and columns =================================================================================================================
 B1 := B: T1 := convert(T,list):
 T2 := T1: B2 := B1:
 found := numelems(B):
-for cnt from 1 to 2 do
+#for cnt from 1 to 1 do
     while numelems(B2) > heurisiticbasislength do
     B1 := B: T1 := convert(T,list):
     Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T1), `+`):
