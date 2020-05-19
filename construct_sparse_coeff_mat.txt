@@ -1,5 +1,5 @@
 findsparseresultnat:= proc(eqsinput, vars, sizeofcombs, polycomb, actualnoofsolns, heurisiticbasislength) 
-local counter, newpredeigsz, groupsofdifs, modifiedCred, found, tempT, ti, crowstobedelet, rowColCnts, tempCred, Cred, noofTs, tn, C, solverrank, testcoeffmat, minTn, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, minmonomialnorms, allTs, allBs, allBbss, allBns, currentminsolver, bestbasisindx, delt, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, fIndex, index, eqs, ll, tempolddigs, indicestotest:
+local counter, newpredeigsz, groupsofdifs, modifiedCred, found, tempT, ti, crowstobedelet, rowColCnts, tempCred, Cred, noofTs, tn, C, solverrank, testcoeffmat, minTn, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, allBs, delt, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, fIndex, eqs, ll, tempolddigs, indicestotest:
 delt := [ -0.01, 0.01, 0]:
 
 eqs := eqsinput:
@@ -32,15 +32,9 @@ for vci to numelems(variouscombinations) do
 	minkowskis[vci] := minkowskisum(op(PForMink)): 
 end do:
 
-bestbasisindx := 0:
-currentminsolver := infinity:
-allBns := []:
+selectedB := -1:
+selectedT := -1:
 allBs := []:
-allBbss := []:
-allTs := []:
-minmonomialnorms := []:
-index := 1:
-bestbasisindx := -1:
 oldpredeigsz := 10000000:
 for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
 	randomize():
@@ -92,23 +86,17 @@ for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
 	            if Bn = solverrank then
                     newpredaigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
                     printf("| Predicted eigenvalue size ............................ %d | \n", newpredaigsz):
-    		        if newpredaigsz <= oldpredeigsz and convert(  map(i -> numelems(i) >= Bn, allBs), `and`)  then
+    		        if newpredaigsz <= oldpredeigsz and convert(map(b->numelems(b)>Bn, allBs), `and`) then
                         oldpredeigsz := newpredaigsz:
                         if  LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..Tn - numelems(temp), gbs]) = numelems(gbs) then                                                                                    
-                            allTs := [op(allTs), T]:
-                            allBs := [op(allBs), B]:                        
-                            allBbss := [op(allBbss), B[bbs]]:
-                            minmonomialnorms := [op(minmonomialnorms), minmonnorm]:
-                            allBns := [op(allBns), numelems(B[bbs])]:
-                            index := index + 1:
+                            selectedB := B:
+                            selectedT := T:
+                            allBs := [op(allBs), B]:
                             printf(" .................... \n"):
-                            printf(" | %d X %d, %d, %d, %d |\n",Tn, Bn, numelems(bbs), Tn - numelems(temp),LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]) ):                            
+                            printf(" | %d X %d, %d, %d, %d |\n",Tn, Bn, numelems(bbs), Tn - numelems(temp),LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]) ):
             	        	printf("delta =  %{t}6f \n", LinearAlgebra[Transpose](convert(delta,Matrix))):
                             printf("Min monomial =  %{t}6d, Max monomial = %{t}6d \n", LinearAlgebra[Transpose](convert(B[1],Matrix)), LinearAlgebra[Transpose](convert(B[-1],Matrix))):
-    	                	bestbasisindx := index-1:
-                            printf(" ....................  %d \n", bestbasisindx):
             	            printf("\n"):
-                            currentminsolver := numelems(B):                           
                         end if:
                     end if:
                 end if:
@@ -116,19 +104,19 @@ for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
         end do:
     end do:
 
-if bestbasisindx = -1 then 
+if selectedT = -1 then 
 	printf("NO SOLVER FOUND .... \n"):
 	return convert([],list), convert([],list), [[]]:
 end if:
 
-T := allTs[bestbasisindx]:
+T := selectedT:
 Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T), `+`):
-B := allBs[bestbasisindx]:
+B := selectedB:
 Bn := numelems(B):
 C := polytomat(convert(T, list), B, eval(eqs), vars, Bn, Tn); 
 testcoeffmat := LinearAlgebra[Modular][Mod](ithprime(1000), C, integer[8]):
 solverrank := LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat):
-printf("obtained a solution, %d\n",bestbasisindx ):
+printf("obtained a sparse monomial basis...... \n"):
 printf("Solver := %d * %d, rank := %d worst case eigensolver size = %d\n", Tn,Bn,solverrank, ArrayTools[Size](T[-1],1)):
 Boriginal := B:
 temp := convert(T[-1], list, nested = true):
@@ -324,5 +312,5 @@ Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end pr
 # =============================================================================================================
 Cr := polytomat(convert(T, list), B, eval(eqs), vars, numelems(B), convert(map(proc (t) options operator, arrow; ArrayTools[Size](t)[1] end proc, T), `+`)):
 
-return Boriginal, allTs[bestbasisindx], B, T:
+return Boriginal, selectedT, B, T:
 end proc:
