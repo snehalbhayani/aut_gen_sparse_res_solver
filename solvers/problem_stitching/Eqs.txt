@@ -1,8 +1,0 @@
- eq1 := a1^6*a2^3*c1+a1^5*a2^3*c2+a1^4*a2^3*c3+a1^4*a2^2*c4+a1^3*a2^3*c5+a1^3*a2^2*c6+a1^2*a2^3*c7+a1^2*a2^2*c8+a1*a2^3*c10+a1^2*a2*c9+a1*a2^2*c11+a2^3*c13+a1*a2*c12+a2^2*c14+a2*c15+c16: eq2 := a1^6*a2^3*c17+a1^5*a2^3*c18+a1^4*a2^3*c19+a1^4*a2^2*c20+a1^3*a2^3*c21+a1^3*a2^2*c22+a1^2*a2^3*c23+a1^2*a2^2*c24+a1*a2^3*c26+a1^2*a2*c25+a1*a2^2*c27+a2^3*c29+a1*a2*c28+a2^2*c30+a2*c31+c32:
-eqs := [
-eq1,eq2
-]:
-vars := [a1, a2]:
-hiddenVarNumber :=  1 :
-noofrowstoreduce :=  0 :
-unHiddenVars := a2:
