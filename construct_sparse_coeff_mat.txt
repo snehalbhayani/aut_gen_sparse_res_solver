@@ -133,11 +133,12 @@ printf("Solver := %d * %d, rank := %d worst case eigensolver size = %d\n", Tn,Bn
 Boriginal := B:
 temp := convert(T[-1], list, nested = true):
 oldpredeigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
+
 # Removal of rows and columns =================================================================================================================
 B1 := B: T1 := convert(T,list):
 T2 := T1: B2 := B1:
 found := numelems(B):
-#for cnt from 1 to 1 do
+for cnt from 1 to 2 do
     while numelems(B2) > heurisiticbasislength do
     B1 := B: T1 := convert(T,list):
     Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T1), `+`):

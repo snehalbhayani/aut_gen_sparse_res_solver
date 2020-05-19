@@ -1,4 +1,4 @@
-function[PEPsolutions, C0, C1, hiddenvarnumber] = solve(data) 
+function[PEPsolutions] = solve(data) 
 hiddenvarnumber = 2;
 c1 = data(1);c2 = data(2);c3 = data(3);c4 = data(4);c5 = data(5);c6 = data(6);c7 = data(7);c8 = data(8);c9 = data(9);c10 = data(10);c11 = data(11);c12 = data(12);c13 = data(13);c14 = data(14);c15 = data(15);c16 = data(16);c17 = data(17);c18 = data(18);c19 = data(19);c20 = data(20);c21 = data(21);c22 = data(22);c23 = data(23);c24 = data(24);c25 = data(25);c26 = data(26);c27 = data(27);
 t1 = -c10*c18^2+2*c12*c16*c18;
@@ -566,11 +566,6 @@ M(11,28) = 1;
 M(11,30) = -1;
 M = [rref(M(1:0,:)); M(1:end,:)];
 nc1 = M(1);nc2 = M(2);nc3 = M(3);nc4 = M(4);nc5 = M(5);nc6 = M(6);nc7 = M(7);nc8 = M(8);nc9 = M(9);nc10 = M(12);nc11 = M(13);nc12 = M(14);nc13 = M(15);nc14 = M(16);nc15 = M(17);nc16 = M(18);nc17 = M(19);nc18 = M(20);nc19 = M(23);nc20 = M(24);nc21 = M(25);nc22 = M(26);nc23 = M(27);nc24 = M(28);nc25 = M(29);nc26 = M(30);nc27 = M(31);nc28 = M(34);nc29 = M(35);nc30 = M(36);nc31 = M(37);nc32 = M(38);nc33 = M(39);nc34 = M(40);nc35 = M(41);nc36 = M(42);nc37 = M(45);nc38 = M(46);nc39 = M(47);nc40 = M(48);nc41 = M(49);nc42 = M(50);nc43 = M(51);nc44 = M(52);nc45 = M(53);nc46 = M(56);nc47 = M(57);nc48 = M(58);nc49 = M(59);nc50 = M(60);nc51 = M(61);nc52 = M(62);nc53 = M(63);nc54 = M(64);nc55 = M(67);nc56 = M(68);nc57 = M(69);nc58 = M(70);nc59 = M(71);nc60 = M(72);nc61 = M(73);nc62 = M(74);nc63 = M(75);nc64 = M(78);nc65 = M(79);nc66 = M(80);nc67 = M(81);nc68 = M(82);nc69 = M(83);nc70 = M(84);nc71 = M(85);nc72 = M(86);nc73 = M(89);nc74 = M(90);nc75 = M(91);nc76 = M(92);nc77 = M(93);nc78 = M(94);nc79 = M(95);nc80 = M(96);nc81 = M(97);nc82 = M(100);nc83 = M(101);nc84 = M(102);nc85 = M(103);nc86 = M(104);nc87 = M(105);nc88 = M(106);nc89 = M(107);nc90 = M(108);nc91 = M(111);nc92 = M(112);nc93 = M(113);nc94 = M(114);nc95 = M(115);nc96 = M(116);nc97 = M(117);nc98 = M(118);nc99 = M(119);nc100 = M(122);nc101 = M(123);nc102 = M(124);nc103 = M(125);nc104 = M(126);nc105 = M(127);nc106 = M(128);nc107 = M(129);nc108 = M(130);nc109 = M(131);nc110 = M(133);nc111 = M(134);nc112 = M(135);nc113 = M(136);nc114 = M(137);nc115 = M(138);nc116 = M(139);nc117 = M(140);nc118 = M(141);nc119 = M(142);nc120 = M(144);nc121 = M(145);nc122 = M(146);nc123 = M(147);nc124 = M(148);nc125 = M(149);nc126 = M(150);nc127 = M(151);nc128 = M(152);nc129 = M(153);nc130 = M(155);nc131 = M(156);nc132 = M(157);nc133 = M(158);nc134 = M(159);nc135 = M(160);nc136 = M(161);nc137 = M(162);nc138 = M(163);nc139 = M(164);nc140 = M(166);nc141 = M(167);nc142 = M(168);nc143 = M(169);nc144 = M(170);nc145 = M(171);nc146 = M(172);nc147 = M(173);nc148 = M(174);nc149 = M(177);nc150 = M(178);nc151 = M(179);nc152 = M(180);nc153 = M(181);nc154 = M(182);nc155 = M(183);nc156 = M(184);nc157 = M(185);nc158 = M(188);nc159 = M(189);nc160 = M(190);nc161 = M(191);nc162 = M(192);nc163 = M(193);nc164 = M(194);nc165 = M(195);nc166 = M(196);nc167 = M(199);nc168 = M(200);nc169 = M(201);nc170 = M(202);nc171 = M(203);nc172 = M(204);nc173 = M(205);nc174 = M(206);nc175 = M(207);nc176 = M(210);nc177 = M(211);nc178 = M(212);nc179 = M(213);nc180 = M(214);nc181 = M(215);nc182 = M(216);nc183 = M(217);nc184 = M(218);nc185 = M(221);nc186 = M(222);nc187 = M(223);nc188 = M(224);nc189 = M(225);nc190 = M(226);nc191 = M(227);nc192 = M(228);nc193 = M(229);nc194 = M(230);nc195 = M(232);nc196 = M(233);nc197 = M(234);nc198 = M(235);nc199 = M(236);nc200 = M(237);nc201 = M(238);nc202 = M(239);nc203 = M(240);nc204 = M(241);nc205 = M(243);nc206 = M(244);nc207 = M(245);nc208 = M(246);nc209 = M(247);nc210 = M(248);nc211 = M(249);nc212 = M(250);nc213 = M(251);nc214 = M(252);nc215 = M(254);nc216 = M(255);nc217 = M(256);nc218 = M(257);nc219 = M(258);nc220 = M(259);nc221 = M(260);nc222 = M(261);nc223 = M(262);nc224 = M(265);nc225 = M(266);nc226 = M(267);nc227 = M(268);nc228 = M(269);nc229 = M(270);nc230 = M(271);nc231 = M(272);nc232 = M(273);nc233 = M(276);nc234 = M(277);nc235 = M(278);nc236 = M(279);nc237 = M(280);nc238 = M(281);nc239 = M(282);nc240 = M(283);nc241 = M(284);nc242 = M(287);nc243 = M(288);nc244 = M(289);nc245 = M(290);nc246 = M(291);nc247 = M(292);nc248 = M(293);nc249 = M(294);nc250 = M(295);nc251 = M(296);nc252 = M(298);nc253 = M(299);nc254 = M(300);nc255 = M(301);nc256 = M(302);nc257 = M(303);nc258 = M(304);nc259 = M(305);nc260 = M(306);nc261 = M(307);nc262 = M(309);nc263 = M(310);nc264 = M(311);nc265 = M(312);nc266 = M(313);nc267 = M(314);nc268 = M(315);nc269 = M(316);nc270 = M(317);nc271 = M(331);nc272 = M(332);nc273 = M(333);nc274 = M(334);nc275 = M(335);nc276 = M(336);nc277 = M(337);nc278 = M(338);nc279 = M(339);nc280 = M(340);
-ArrayOfCsNames = '';
-sizeOfC = 30;
-noOfVars = 4;
-sparseBasis = [1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 3 3 3 1 1 1 2 2 2 3 3 3 4 4 4; 0 0 0 1 1 1 2 2 2 0 0 0 1 1 1 0 0 0 3 3 3 2 2 2 1 1 1 0 0 0; 0 1 2 0 1 2 0 1 2 0 1 2 0 1 2 0 1 2 0 1 2 0 1 2 0 1 2 0 1 2;];
-solFromEigenVectors = [-1 -1 -1; 0 0 1; 0 0 0; 0 1 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 1 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 0 0 0;];
 Cs = zeros(30,60);
 Cs(1,1) = nc271;
 Cs(1,2) = nc262;
@@ -908,42 +903,19 @@ Cs(29,29) = 1;
 Cs(29,47) = -1;
 Cs(30,30) = 1;
 Cs(30,48) = -1;
-indicesToRemove = [];
+solForm = [[-1] [-1] [-1]; [0] [0] [1]; [0] [0] [0]; [0] [1] [0]; [0] [0] [0]; [0] [0] [0]; [0] [0] [0]; [0] [0] [0]; [0] [0] [0]; [1] [0] [0]; [0] [0] [0]; [0] [0] [0]; [0] [0] [0]; [0] [0] [0]; [0] [0] [0]; [0] [0] [0]; [0] [0] [0]; [0] [0] [0];];
 
-classes =0;
-monstocheck=[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]; 
-indxOfZeroCoeffMat=2;
-zeigvalindx=[];
-solFromEigenVectors=transpose([-1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0;-1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0;-1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]);
-theoreticalsolncnt =15;
-solForm = solFromEigenVectors;
-sizeOfReducedCs = sizeOfC;
-maxReducedCoeffMs = size(Cs,2)/size(Cs,1);
-allCss = mat2cell(Cs, sizeOfReducedCs, ones(1,maxReducedCoeffMs) * sizeOfReducedCs);
-
-
-C0 = allCss{1};
+allCss = mat2cell(Cs, 30, ones(1,2) * 30);
+noOfVars = 3; 
+C0 = allCss{1}; 
 C1 = allCss{2};
-
-
-A1 = C0(1:end-size(solFromEigenVectors,1),1:size(solFromEigenVectors,1));
-A2 = C0(1:end-size(solFromEigenVectors,1),size(solFromEigenVectors,1)+1:end);
-B1 = C0(end-size(solFromEigenVectors,1)+1:end,1:size(solFromEigenVectors,1));
-B2 = C0(end-size(solFromEigenVectors,1)+1:end,size(solFromEigenVectors,1)+1:end);
-X = B1 - B2 * (A2 \ A1);
-% 
-% A1 = -C0(1:end-size(solFromEigenVectors,1),1:size(solFromEigenVectors,1));
-% A2 = -C0(1:end-size(solFromEigenVectors,1),size(solFromEigenVectors,1)+1:end);
-% B1 = C1(end-size(solFromEigenVectors,1)+1:end,1:size(solFromEigenVectors,1));
-% B2 = C1(end-size(solFromEigenVectors,1)+1:end,size(solFromEigenVectors,1)+1:end);
-% X = B1 - (B2 /A2) * A1;
-
+A1 = C0(1:end-18,1:18);
+A2 = C0(1:end-18,19:end);
+B1 = C0(end-18+1 : end,1:18);
+B2 = C0(end-18+1 : end, 19:end);
+X = B1 - B2 * (A2 \ A1); 
 [V,D] = eig(X);
-
-
-EValues = diag(D);
-% EValues = -1./diag(D);
-
+EValues = diag(D); 
 EVectors = V;
 good = ~(isinf(EValues) | isnan(EValues));
 EValues = EValues(good);
@@ -956,7 +928,6 @@ NinfEValues = EValues(nonInfEValuesInd);
 NinfEVectors = EVectors(:,nonInfEValuesInd);
 noOfEvalues = length(NinfEValues);
 sizeOfEvectors = length(solForm);
-noOfVars = noOfVars - 1;
 
 % We basically, then iterate through all of the received eigenvalues and
 % then try to remove those that do not satisfy the criterion for the

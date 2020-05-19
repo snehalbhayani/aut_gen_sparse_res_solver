@@ -94,7 +94,4 @@ else
 end
 
 dos(mapleExecutor);
-
-%%
-offline_solver_stage_2;
 end

@@ -11,17 +11,16 @@ solverGenFunc = str2func(problem_name);
 allsols = [];
 [varstemp, hiddenvarnum, coeffs, sizeofcombs, polycomb, infinitePrec, symeqs, theoreticalsolncnt] = solverGenFunc();
 hiddenvar = strjoin({'a',num2str(hiddenvarnum)},'');
-varstemp = [strjoin({'a', num2str(hiddenvarnum)}, ''); varstemp(find(varstemp~=hiddenvar))];
-eqs = symeqs;
+vars = [strjoin({'a', num2str(hiddenvarnum)}, ''); varstemp(find(varstemp~=hiddenvar))];
 for index = 1:iter_cnt
     data = transpose(datas(:,index));
     
     res = [];
-    [PEPSolutions, C0, C1, hiddenvarnum] = solver(data);
-
+    [PEPSolutions] = solver(data);
+    eqs = subs(symeqs, coeffs, data);
     PEPSolutions = transpose(PEPSolutions);
     for i = 1:size(PEPSolutions,2)
-        sol = PEPSolutions(:,i);
+        sol = PEPSolutions([1:end-1],i);
         temp = mat2cell([transpose(sol),data],1,1*ones(1,length(data)+length(sol))); 
         try
             kthres = max(abs(eval(subs(eqs, vars, sol))))/norm(abs(sol));
@@ -35,11 +34,9 @@ for index = 1:iter_cnt
     end
     allsols = [allsols, {PEPSolutions}];
     all_results = [all_results, res];
-        
-    if (mod(index-1,1)==0)
-        fprintf("Tested %d iterations...",index);
-        disp(mean(log10(all_results)));
-    end
+       
+    disp(mean(log10(all_results)));
+    
 end
 %%
 disp(median(log10(all_results)));

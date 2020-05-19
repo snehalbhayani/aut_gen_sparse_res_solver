@@ -153,9 +153,7 @@ temp := convert(monmultiples[-1], list, nested = true):
 bbs := map(proc (i) options operator, arrow; select(proc (j) options operator, arrow; sparsebasis[j] = [temp[i][1], op(temp[i][2..])] end proc, [seq(1 .. numelems(sparsebasis))])[1] end proc, [seq(1 .. numelems(temp))]):
 gbs := convert(convert([seq(1 .. numelems(sparsebasis))], set) minus convert(bbs, set), list):
 sparsebasis := sparsebasis[[op(bbs), op(gbs)]]:
-print(unHiddenVars);
 Cred := polytomat(convert(monmultiples, list), sparsebasis, reducedeqs, unHiddenVars, Bn, Bn):
-
 degreehidvar := max(map(proc (f) options operator, arrow; degree(f, cat('a',hiddenVarNumber)) end proc, Cred)):
 allcs := map(proc (i) options operator, arrow; coeff(Cred, cat('a',hiddenVarNumber)^i) end proc, [seq(1 .. degreehidvar)]):
 Cs := convert([coeff(Cred*cat('a',hiddenVarNumber), cat('a',hiddenVarNumber)), op(allcs)], Matrix):
@@ -165,45 +163,36 @@ printf("The size of sparse basis is %d .\n", Bn);
 #======================================================================================
 # Generating the solver and the template to calculate var values from eigen vectors
 #======================================================================================
-sparsebasis := LinearAlgebra[Transpose](convert(sparsebasis, Matrix)):
+sparsefinalbasis := LinearAlgebra[Transpose](convert(sparsebasis[[seq(1..numelems(bbs))]], Matrix)):
 printf("Generating template to be used for extracting values of the un-hidden variables \n");
 
 with(SolveTools): 
 unassign('d'):
-lambdas := Matrix(Size(sparsebasis)[2], 1, symbol = 'd'): 
-solForm := Matrix(Size(sparsebasis)[2], Size(vars)[2]-1, symbol = 's'): 
+lambdas := Matrix(Size(sparsefinalbasis)[2], 1, symbol = 'd'):
+solForm := Matrix(Size(sparsefinalbasis)[2], Size(vars)[2]-1, symbol = 's'): 
 for i to Size(vars)[2]-1 do 
 	eVec := Matrix(Size(vars)[2], 1, 0): 
 	eVec[i, 1] := 1: 
-	polEqs := Matrix([[convert(sparsebasis, Matrix)], [Matrix(1, Size(sparsebasis)[2], 1)]]): 
+	polEqs := Matrix([[convert(sparsefinalbasis, Matrix)], [Matrix(1, Size(sparsefinalbasis)[2], 1)]]): 
 	temp := LinearAlgebra[LinearSolve](polEqs, eVec, free = 'd'): 
-	for j to Size(sparsebasis)[2] do 
+	for j to Size(sparsefinalbasis)[2] do 
 		solForm[j, i] := temp[j]:
 	end do 
 end do: 
-
-templateFileName := convert(cat(solverFolderName, "/solver_template.m"), string): 
-fileName := convert(cat(solverFolderName, "/reduce_mon_basis.m"), string): 
-
-printf("Loading the solver template for problem specific solver...\n"):
-fd := fopen("PEP_solver_template.m",READ,TEXT):
-	templateText := readbytes(fd, infinity):
-fclose(fd):
-
-fd := fopen(templateFileName,WRITE,TEXT):
-	writeline(fd, cat("hiddenvarnumber = ",selectedhiddenvarind, ";")):
-    writeline(fd, cat(op(map(i -> cat("c", i, " = data(", i, ");"), [seq(1..noofdatacoeff)])))):
-fclose(fd):
-
-printf("Processing the sparse basis to estimate the solver based on eigenvalues and eigenvectors...\n"):
-for k to ArrayTools[Size](sparsebasis)[2] do 
+for k to ArrayTools[Size](sparsefinalbasis)[2] do 
 	assign(lambdas[k, 1], 0): 
 end do: 
+solForm := evalm(solForm):
+################################################################################################
+fd := fopen("patch.m", READ,TEXT):
+	temp := readbytes(fd, infinity):
+fclose(fd):
 
-solFromEigenVectors := convert(evalm(solForm), Matrix): 
-coeffMatNames := "": 
-sizeOfCs := ArrayTools[Size](Cs)[1]:
-fd := fopen(templateFileName,APPEND,TEXT):
+solverFileName := convert(cat(solverFolderName, "/solver.m"), string):
+fd := fopen(solverFileName, WRITE, TEXT):
+writeline(fd, "function[PEPsolutions] = solve(data) "):
+writeline(fd, cat("hiddenvarnumber = ",selectedhiddenvarind, ";")):
+writeline(fd, cat(op(map(i -> cat("c", i, " = data(", i, ");"), [seq(1..noofdatacoeff)])))): 
 
 for i to numoftempts do
 	writeline(fd, cat("t",i, " = ",tempts[i] ,";")):
@@ -219,17 +208,8 @@ for i to numelems(eqs) do
 end do:
 
 writeline(fd, cat("M = [rref(M(1:", noofrowstoreduce, ",:)); M(", (noofrowstoreduce+1), ":end,:)];")):
-writeline(fd, cat(op(map(i -> cat("nc", i, " = M(", nc[i], ");"), [seq(1..numofncs)]))) ):
-fclose(fd):
+writeline(fd, cat(op(map(i -> cat("nc", i, " = M(", nc[i], ");"), [seq(1..numofncs)]))) ): 
 
-MatlabCodeCreator(coeffMatNames, "ArrayOfCsNames", templateFileName): 
-MatlabCodeCreator(sizeOfCs, "sizeOfC", templateFileName): 
-MatlabCodeCreator(Size(vars)[2], "noOfVars", templateFileName): 
-MatlabCodeCreator(convert(sparsebasis, Matrix), "sparseBasis", templateFileName): 
-MatlabCodeCreator(convert(map(proc (x) options operator, arrow: x[1] end proc, solFromEigenVectors), Matrix), "solFromEigenVectors", templateFileName):
-
-
-fd := fopen(templateFileName,APPEND,TEXT):
 writeline(fd, convert(cat("Cs = zeros(",ArrayTools[Size](Cs)[1], ",", ArrayTools[Size](Cs)[2],");" ),string)):
 for j to ArrayTools[Size](Cs)[1] do
 	for k to ArrayTools[Size](Cs)[2] do
@@ -238,27 +218,14 @@ for j to ArrayTools[Size](Cs)[1] do
 		end if:
 	end do:
 end do:
-
-writeline(fd, "indicesToRemove = [];"):
+writeline(fd, CodeGeneration[Matlab](convert(solForm,list), resultname="solForm", output=string)):
+writeline(fd, cat("allCss = mat2cell(Cs, ", numelems(sparsebasis), ", ones(1,2) * ", numelems(sparsebasis), ");")):
+writeline(fd, cat("noOfVars = ",(numelems(vars)-1), "; \nC0 = allCss{1}; \nC1 = allCss{2};")):
+writeline(fd, cat("A1 = C0(1:end-", numelems(bbs), ",1:", numelems(bbs), ");")):
+writeline(fd, cat("A2 = C0(1:end-", numelems(bbs), ",", (numelems(bbs)+1), ":end);")):
+writeline(fd, cat("B1 = C0(end-", numelems(bbs), "+1 : end,1:", numelems(bbs), ");")):
+writeline(fd, cat("B2 = C0(end-", numelems(bbs), "+1 : end, ", (numelems(bbs)+1), ":end);")):
+writebytes(fd, temp):
+writeline(fd, "\nend"):
 fclose(fd):
-
-printf(" Copying the template to a temporary solver. \n");
-fd := fopen(templateFileName,READ,TEXT):
-CsTemplateText := readbytes(fd, infinity):
-fclose(fd):
-
-fd := fopen("find_non_zero_coeff_mat.m", READ,TEXT):
-	temp2 := readbytes(fd, infinity):
-fclose(fd):
-
-
-fd := fopen(fileName, WRITE,TEXT):
-	writeline(fd, "function[indicesToRemove, numOfRedCoeffMat, zeigvalindx, solverTemplate, extendedbasis, nullspacesize1, depdXcols1, nzrows1, depdCcols1, indepdCcols1, mdepdXcols1, mindepdXcols1, indepdCrows1, rowstorem1, nullspacesize2, depdXcols2, nzrows2, depdCcols2, indepdCcols2, mdepdXcols2, mindepdXcols2, indepdCrows2, rowstorem2, nullspacesize3, depdXcols3, nzrows3, depdCcols3, indepdCcols3, mdepdXcols3, mindepdXcols3, indepdCrows3, rowstorem3] = reducemonbasis(data, noofdatacoeff, foldername)"):
-	writebytes(fd, CsTemplateText):
-	writeline(fd, "indicesToSkip = fliplr(find(sum(transpose(solFromEigenVectors))~=0));"):
-    writeline(fd, cat("sizeoffinalres =", numelems(bbs))):
-	#writeline(fd, cat("[reducedCs, reducedSparseBasis zeroMatrixIndices rowsToRemove colsToRemove] = reducemonbasis(Cs, transpose(solFromEigenVectors),1, 100.0, indicesToSkip);")):
-	writebytes(fd, temp2):
-fclose(fd):
-
-printf(" The solver code is now generated in the form of file, PEP_solver.m \n");
+########################################################################################################

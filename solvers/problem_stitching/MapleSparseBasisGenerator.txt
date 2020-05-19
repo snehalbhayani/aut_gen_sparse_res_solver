@@ -1,3 +1,10 @@
+solverFolderName :=solvers/problem_stitching:
+sizeofcombs := [1]:
+heurisitictemplatesize := 36:
+noofdatacoeff :=32:
+varorder := []:
+theoreticalsolncnt:=18:
+polycomb := [1,2]:
 read cat(solverFolderName, "/Eqs.txt"): 
 read "construct_sparse_coeff_mat.txt":
 read "polysolver.map":
@@ -177,7 +184,7 @@ for k to ArrayTools[Size](sparsefinalbasis)[2] do
 end do: 
 solForm := evalm(solForm):
 ################################################################################################
-fd := fopen("offline_patch.m", READ,TEXT):
+fd := fopen("patch.m", READ,TEXT):
 	temp := readbytes(fd, infinity):
 fclose(fd):
 

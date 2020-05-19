@@ -2,7 +2,7 @@ function[vars, hiddenvarnum, coeffconsts, sizeofcombs, polycomb, infinitePrec, e
 tic;
 %% Formatting the  structures -- coefficients and data 
 numOfDataCoeff = 27;
-
+addpath('eqs');
 if nargin == 1
     if data == -1
         data = randn(numOfDataCoeff,1);
@@ -44,4 +44,5 @@ sizeofcombs = [2];
 polycomb=[1;11]; 
 noofrowstoreduce = 0;
 heurisitictemplatesize = 200;
+rmpath('eqs');
 end

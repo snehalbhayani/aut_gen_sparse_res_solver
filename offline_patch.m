@@ -1,31 +1,6 @@
-solForm = solFromEigenVectors;
-sizeOfReducedCs = sizeOfC;
-maxReducedCoeffMs = size(Cs,2)/size(Cs,1);
-allCss = mat2cell(Cs, sizeOfReducedCs, ones(1,maxReducedCoeffMs) * sizeOfReducedCs);
-
-
-C0 = allCss{1};
-C1 = allCss{2};
-
-
-A1 = C0(1:end-size(solFromEigenVectors,1),1:size(solFromEigenVectors,1));
-A2 = C0(1:end-size(solFromEigenVectors,1),size(solFromEigenVectors,1)+1:end);
-B1 = C0(end-size(solFromEigenVectors,1)+1:end,1:size(solFromEigenVectors,1));
-B2 = C0(end-size(solFromEigenVectors,1)+1:end,size(solFromEigenVectors,1)+1:end);
-X = B1 - B2 * (A2 \ A1);
-% 
-% A1 = -C0(1:end-size(solFromEigenVectors,1),1:size(solFromEigenVectors,1));
-% A2 = -C0(1:end-size(solFromEigenVectors,1),size(solFromEigenVectors,1)+1:end);
-% B1 = C1(end-size(solFromEigenVectors,1)+1:end,1:size(solFromEigenVectors,1));
-% B2 = C1(end-size(solFromEigenVectors,1)+1:end,size(solFromEigenVectors,1)+1:end);
-% X = B1 - (B2 /A2) * A1;
-
+X = B1 - B2 * (A2 \ A1); 
 [V,D] = eig(X);
-
-
-EValues = diag(D);
-% EValues = -1./diag(D);
-
+EValues = diag(D); 
 EVectors = V;
 good = ~(isinf(EValues) | isnan(EValues));
 EValues = EValues(good);
@@ -38,7 +13,6 @@ NinfEValues = EValues(nonInfEValuesInd);
 NinfEVectors = EVectors(:,nonInfEValuesInd);
 noOfEvalues = length(NinfEValues);
 sizeOfEvectors = length(solForm);
-noOfVars = noOfVars - 1;
 
 % We basically, then iterate through all of the received eigenvalues and
 % then try to remove those that do not satisfy the criterion for the
@@ -69,5 +43,4 @@ if length(find(allvarsextracted==0)) == 0
 
 else
     PEPsolutions = [];
-end
 end
