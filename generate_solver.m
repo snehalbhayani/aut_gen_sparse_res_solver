@@ -12,7 +12,7 @@ addpath("problems");
 [eqsHandler, cfg] = solverGenFunc();
 data = arrayfun(@(k) sym(char(strjoin({'c',num2str(k)},''))), [[1:cfg.numOfCoeff]], 'UniformOutput', false);
 vars = arrayfun(@(k) sym(char(strjoin({'a',num2str(k)},''))), [[1:cfg.numOfVars]], 'UniformOutput', false);
-p = [data, vars];
+p = [vars, data];
 eqs = eqsHandler(p{:});
 rmpath("problems");
 
