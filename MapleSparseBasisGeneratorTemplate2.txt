@@ -32,8 +32,6 @@ for hiddenvarind from fr to en do
     unHiddenVars := vars[..-2]:
     hiddenVarNumber := newHiddenVarNumber:
     hiddenVar := parse(cat("a", hiddenVarNumber)):
-    print(unHiddenVars, vars, hiddenVarNumber, eqs[-1]);
-
     CUDA[Enable](true):
     printf("CUDA enabled : %s \n",CUDA[IsEnabled]());
 
@@ -47,7 +45,7 @@ for hiddenvarind from fr to en do
         # Iterate through all possible permutations of the variables in question. 
         #======================================================================================
 
-    for varperm in [combinat[permute]([a1,a2,a3,a4,a5,a6])[1]] do
+    for varperm in [combinat[permute](vars)[1]] do
             #======================================================================================
             # Convert polynomial equations to matrix form	
             #======================================================================================
@@ -93,7 +91,7 @@ for hiddenvarind from fr to en do
         # We find sparse basis for the reduced equations. Here the coefficients are 'nc's.
     	#======================================================================================
         try:
-            Boriginal, Toriginal, B, T := findsparseresultnat(reducedeqs, unHiddenVars, sizeofcombs, polycomb, theoreticalsolncnt, heurisitictemplatesize):
+            Boriginal, Toriginal, B, T := findsparseresultnat(reducedeqs, unHiddenVars, sizeofcombs, polycomb, heurisitictemplatesize):
             Tn := convert(map(at -> Size(T[at])[1], [seq(1 .. numelems(T))]), `+`):
             Cr := polytomat(T, B, eval(reducedeqs), unHiddenVars, numelems(B), Tn):
             print(T, Tn, numelems(B));	
