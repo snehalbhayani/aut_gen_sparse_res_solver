@@ -1,23 +1,6 @@
-function[eqsHandler, cfg] = problem_relpose_6p_focal(data)
-tic;
+function[eqsHandler, cfg] = problem_relpose_6p_focal()
 %% Configuring the solver
 cfg = retrieve_solver_cfg();
-% for k = 1:cfg.numOfCoeff
-%     syms(strjoin({'c',num2str(k)},''));
-%     eval(strjoin({'data(',num2str(k),',1) = ', 'c',num2str(k),';'},''));
-% end
-% for k = 1:cfg.numOfVars
-%     syms(strjoin({'a',num2str(k)},''));
-%     eval(strjoin({'vars(',num2str(k),') = ', 'a',num2str(k),';'},''));
-% end
-
-%% Retrieving the equations
-% B = transpose([transpose(vars);data]);
-% p = mat2cell(B,1,ones(1,numel(B)));
-% eqs = [];
-% if nargout >=7
-%     eqs = retrieve_eqs(p{:});
-% end
 eqsHandler = @retrieve_eqs;
 end
 %% The polynomial system
