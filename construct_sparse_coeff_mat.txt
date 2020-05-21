@@ -1,4 +1,4 @@
-findsparseresultnat:= proc(eqsinput, vars, sizeofcombs, polycomb, actualnoofsolns, heurisiticbasislength) 
+findsparseresultnat:= proc(eqsinput, vars, sizeofcombs, polycomb, heurisiticbasislength) 
 local counter, newpredeigsz, groupsofdifs, modifiedCred, found, tempT, ti, crowstobedelet, rowColCnts, tempCred, Cred, noofTs, tn, C, solverrank, testcoeffmat, minTn, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, allBs, delt, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, fIndex, eqs, ll, tempolddigs, indicestotest:
 delt := [ -0.01, 0.01, 0]:
 
@@ -15,6 +15,7 @@ P[fIndex] := convhull(op(simplex)):
 v[fIndex] := vertices(P[fIndex]):
 A[fIndex] := vertices(P[fIndex]):
 v := convert(v, list):
+print(vars):
 
 if numelems(polycomb) = 0 then 
     variouscombinations := (map(proc (l) options operator, arrow; seq(combinat[choose]([seq(1 .. numelems(P))], l)) end proc, sizeofcombs)):
@@ -35,7 +36,7 @@ end do:
 selectedB := -1:
 selectedT := -1:
 allBs := []:
-oldpredeigsz := 10000000:
+oldpredeigsz := infinity:
 for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
 	randomize():
 	printf("Trying out polytopes, %s \n", convert(variouscombinations[combind],string));
@@ -74,7 +75,7 @@ for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
 		T := convert(T,list):
 		Tn := convert(map(t->ArrayTools[Size](t,1), T), `+`):
 		minTn := min(map(t->ArrayTools[Size](t,1), T)):
-
+        
 		if Tn >= Bn and minTn > 0 then 
 		        temp := convert(T[-1], list, nested = true): 
         		bbs := map(proc (i1) options operator, arrow; select(proc (j1) options operator, arrow; B[j1] = [temp[i1][1], op(temp[i1][2..])] end proc, [seq(1 .. Bn)])[1] end proc, [seq(1 .. numelems(temp))]): 
@@ -121,6 +122,7 @@ printf("Solver := %d * %d, rank := %d worst case eigensolver size = %d\n", Tn,Bn
 Boriginal := B:
 temp := convert(T[-1], list, nested = true):
 oldpredeigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
+
 # Removal of rows and columns =================================================================================================================
 B1 := B: T1 := convert(T,list):
 T2 := T1: B2 := B1:
@@ -201,6 +203,7 @@ found := numelems(B):
         rowindicestotest := rowindicestotest[rowindices]:     
         inds := [op(inds), op(c)]:   
     end do:
+
     if found > numelems(B1) then 
         T2 := T1:
         B2 := B1:
