@@ -15,15 +15,17 @@ end
 %% The polynomial system
 function cfg = retrieve_solver_cfg()
 cfg = {};
+% Number of coefficients, labelled as c1, c2, c3,...
 cfg.numOfCoeff = 35;
+% Number of variables, labeled as a1, a2, a3,...
 cfg.numOfVars = 3;
-% The index of the selected variable, x[i] or x_i in the extra polynomial,
-% x_i - l.
+% The index i of the selected variable, ai in the extra polynomial,
+% ai - lambda.
 % If set to -1, all variables will be tested one
 % by one
 cfg.hiddenvarnum = 3;
 % (1) Either the size of polynomial combinations to be tested.
-cfg.sizeofcombs = [2];
+cfg.sizeofcombs = [];
 % (2) Or the specific polynomial combination to be tested.
 cfg.polycomb=[1;2];
 % The number of rows to be GJ eliminated to obtained a reduced input

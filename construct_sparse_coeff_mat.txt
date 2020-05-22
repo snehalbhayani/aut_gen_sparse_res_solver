@@ -156,13 +156,6 @@ found := numelems(B):
         colindices := [seq(1..numelems(Btemp))]:
 					
         c := [op(combinat[randperm]([op(gbs), op(bbs)])[1..1])]:
-        if ind > numelems(inds) then 
-           #c := [op(combinat[randperm]([op(gbs), op(bbs)])[1..1])]:
-           #break:
-        else
-            #c := [inds[ind]]:
-            #ind := ind+1:
-        end if:
         cstried	:= [op(cstried), op(c)]:
         
 
