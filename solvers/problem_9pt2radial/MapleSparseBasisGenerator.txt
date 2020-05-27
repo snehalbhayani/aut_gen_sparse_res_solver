@@ -1,9 +1,9 @@
-solverFolderName :=solvers/problem_relpose_7p_fr_1s_partial_elim:
+solverFolderName :=solvers/problem_9pt2radial:
 sizeofcombs := []:
-heurisitictemplatesize := 41:
-noofdatacoeff :=35:
+heurisitictemplatesize := 117:
+noofdatacoeff :=72:
 varorder := []:
-polycomb := [1,2]:
+polycomb := [1,2,3]:
 read cat(solverFolderName, "/Eqs.txt"): 
 read "construct_sparse_coeff_mat.txt":
 read "polysolver.map":

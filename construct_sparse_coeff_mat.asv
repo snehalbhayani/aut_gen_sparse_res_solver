@@ -1,5 +1,5 @@
 extract_mon_basis:= proc(eqs, vars, sizeofcombs, polycomb, heurisiticbasislength) 
-local temp, bbs, gbs, cols2kp, cols2rem, simplex, selectedB, selectedT, counter, newpredeigsz, oldpredeigsz, modifiedCred, found, ti, crowstobedelet, rowColCnts, tempCred, Cred, tn, C, solverrank, testcoeffmat, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, allBs, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, ll, indicestotest:
+local temp, bbs, gbscols2kp, cols2rem, simplex, selectedB, selectedT, counter, newpredeigsz, oldpredeigsz, modifiedCred, found, ti, crowstobedelet, rowColCnts, tempCred, Cred, tn, C, solverrank, testcoeffmat, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, allBs, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, ll, indicestotest:
 
 EE := eval(expand(eqs)):
 for i to ArrayTools[Size](EE)[2] do 
@@ -79,10 +79,10 @@ for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
                 solverrank := LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat):
 
 	            if Bn = solverrank then
-                    newpredeigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
+                    newpredaigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
 
-    		        if newpredeigsz <= oldpredeigsz and convert(map(b->numelems(b)>Bn, allBs), `and`) then
-                        oldpredeigsz := newpredeigsz:
+    		        if newpredaigsz <= oldpredeigsz and convert(map(b->numelems(b)>Bn, allBs), `and`) then
+                        oldpredeigsz := newpredaigsz:
 
                         if  LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..Tn - numelems(temp), gbs]) = numelems(gbs) then                                                                                    
                             selectedB := B:
