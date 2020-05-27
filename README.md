@@ -2,7 +2,7 @@
 
 ## Generating a solver (OFFLINE stage)
 ### Input
-    - A '<problem_name>.m' file which returns a set of solver configuration parameters and a function that returns a set of input polynomial equations
+    - A 'problem_name.m' file which returns a set of solver configuration parameters and a function that returns a set of input polynomial equations
     - The configuration parameters are housed in a matlab struct 'cfg'.
     - The function that returns the input polynomials has the signature
       > function eqs = retrieve_eqs(a1,a2,..,c1,c2,...)
