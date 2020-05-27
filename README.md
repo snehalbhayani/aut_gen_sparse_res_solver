@@ -25,11 +25,11 @@
   - `p1` is 1 if we want to generate a solver , 0 if we do not want to generate a solver
   - `p2` is 1 if we want to test a solver , 0 if we do not want to test a solver
   - `p3` is the number of random datapoints to be used for testing a solver
-- When prompted for the problem name, enter `problem_name`
+- When prompted for the problem name, enter the value of `problem_name`
 
 ## Executing the solver (ONLINE stage)
 - The solver for a problem problem_name is housed in `solvers/problem_name`.
 - Execute 
     > build_test_solver(0, 1, `p`)
     - `p` is th number of random instances to be used for testing the solver
-- When prompted for the problem name, enter `problem_name`
+- When prompted for the problem name, enter the value of `problem_name`
