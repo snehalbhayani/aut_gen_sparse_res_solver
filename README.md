@@ -14,10 +14,10 @@
     - noOfRowsToReduce
     - heurisiticTemplatesize
 ### Output 
-    - A 'solver.m' file in 'solvers/problem_name'
-    - Two other files are generated in 'solvers/problem_name' which are to be checked for debugging purposes.
-        - eqs.txt
-        - A MAPLE script which was executed for generating the solver
+- A 'solver.m' file in 'solvers/problem_name'
+- Two other files are generated in 'solvers/problem_name' which are to be checked for debugging purposes.
+    - eqs.txt
+    - A MAPLE script which was executed for generating the solver
         
 ### Usage
 - Execute
