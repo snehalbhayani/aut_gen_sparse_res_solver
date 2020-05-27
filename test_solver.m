@@ -1,7 +1,7 @@
 function [] = test_solver(problem_name, iter_cnt)
 % clc;
-addpath('solvers/'+problem_name);
-addpath('problems');
+addpath("solvers/"+problem_name);
+addpath("problems");
 %% Tests are performed with the same value of R, T, F_true. All that changes is the sampled point correspondence measurements.
 
 all_results=[];
@@ -12,10 +12,10 @@ vars = arrayfun(@(k) sym(char(strjoin({'a',num2str(k)},''))), [[1:cfg.numOfVars]
 data = arrayfun(@(k) sym(char(strjoin({'c',num2str(k)},''))), [[1:cfg.numOfCoeff]], 'UniformOutput', false);
 p = [vars, data];
 symeqs = eqsHandler(p{:});
-hiddenvar = strjoin({'a',num2str(cfg.hiddenvarnum)},'');
+hiddenvar = strjoin({'a',num2str(cfg.hiddenVarNum)},'');
 vars = [vars{:}];
 coeffs = [data{:}];
-vars = transpose([strjoin({'a', num2str(cfg.hiddenvarnum)}, ''), vars(find(vars~=hiddenvar))]);
+vars = transpose([strjoin({'a', num2str(cfg.hiddenVarNum)}, ''), vars(find(vars~=hiddenvar))]);
 
 for index = 1:iter_cnt
     data = randn(length(coeffs), 1);
@@ -32,7 +32,6 @@ for index = 1:iter_cnt
             end
             res = [res, kthres];
         catch
-            errors=1;
         end
     end
     all_results = [all_results, res];
@@ -41,6 +40,6 @@ for index = 1:iter_cnt
 end
 %%
 disp(mean(log10(all_results)));
-rmpath('problems');
-rmpath('solvers/'+problem_name);
+rmpath("problems");
+rmpath("solvers/"+problem_name);
 end

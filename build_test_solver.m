@@ -1,7 +1,7 @@
 function[] = build_test_solver(build, test, itercnt)
 %% Setup the solver generator
 prompt = 'Enter the problem name...';
-problemName = input(prompt); % absolute_pose_quivers_solver generate_optimal_PnPQ_solver 9pt2raddist_solver The name of the problem to be solved
+problemName = input(prompt, 's'); % absolute_pose_quivers_solver generate_optimal_PnPQ_solver 9pt2raddist_solver The name of the problem to be solved
 %% Build
 if build
     generate_solver(problemName);

@@ -18,7 +18,7 @@ rmpath("problems");
 
 %% Step 2
 vars = [vars{:}];
-hiddenvarnum = cfg.hiddenvarnum;
+hiddenvarnum = cfg.hiddenVarNum;
 acthiddenvarnum = hiddenvarnum;
 if hiddenvarnum ~= -1
     hiddenvar = strjoin({'a',num2str(hiddenvarnum)},'');
@@ -47,7 +47,7 @@ catch
     fprintf(eqFile ,'%s\n',strjoin({'vars := ',strrep(sym2str(vars), ';', ','), ':' }, ''));
 end
 fprintf(eqFile ,'%s\n',strjoin({'hiddenVarNumber := ',num2str(acthiddenvarnum),':'}));
-fprintf(eqFile ,'%s\n',strjoin({'noofrowstoreduce := ',num2str(cfg.noofrowstoreduce),':'}));
+fprintf(eqFile ,'%s\n',strjoin({'noofrowstoreduce := ',num2str(cfg.noOfRowsToReduce),':'}));
 if acthiddenvarnum ~= -1
     
     try
@@ -73,19 +73,19 @@ fclose(baseMapleFile);
 
 mapleFile = fopen(strcat(folderName, '/MapleSparseBasisGenerator.txt'),'w');
 fprintf(mapleFile, '%s\n', strcat('solverFolderName := ',folderName, ':'));
-if length(cfg.sizeofcombs) == 1
-    fprintf(mapleFile ,'%s\n',strjoin({'sizeofcombs := [',num2str(cfg.sizeofcombs), ']:' }, ''));
+if length(cfg.sizeOfCombs) == 1
+    fprintf(mapleFile ,'%s\n',strjoin({'sizeofcombs := [',num2str(cfg.sizeOfCombs), ']:' }, ''));
 else
-    fprintf(mapleFile ,'%s\n',strjoin({'sizeofcombs := ',strrep(mat2str(cfg.sizeofcombs),';',','), ':' }, ''));
+    fprintf(mapleFile ,'%s\n',strjoin({'sizeofcombs := ',strrep(mat2str(cfg.sizeOfCombs),';',','), ':' }, ''));
 end
-fprintf(mapleFile ,'%s\n',strjoin({'heurisitictemplatesize := ',strrep(mat2str(cfg.heurisitictemplatesize),';',','), ':' }, ''));
+fprintf(mapleFile ,'%s\n',strjoin({'heurisitictemplatesize := ',strrep(mat2str(cfg.heurisiticTemplatesize),';',','), ':' }, ''));
 fprintf(mapleFile, '%s\n', strcat('noofdatacoeff := ',num2str(numOfDataCoeff), ':'));
 fprintf(mapleFile, '%s\n', strcat('varorder := []:'));
 
-if length(cfg.polycomb) == 1
-    fprintf(mapleFile ,'%s\n',strjoin({'polycomb := [',num2str(cfg.polycomb), ']:' }, ''));
+if length(cfg.polyComb) == 1
+    fprintf(mapleFile ,'%s\n',strjoin({'polycomb := [',num2str(cfg.polyComb), ']:' }, ''));
 else
-    fprintf(mapleFile ,'%s\n',strjoin({'polycomb := ',strrep(mat2str(cfg.polycomb),';',','), ':' }, ''));
+    fprintf(mapleFile ,'%s\n',strjoin({'polycomb := ',strrep(mat2str(cfg.polyComb),';',','), ':' }, ''));
 end
 
 fprintf(mapleFile, '%s', filetext);
