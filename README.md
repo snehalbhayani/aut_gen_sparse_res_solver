@@ -2,7 +2,7 @@
 
 ## Generating a solver (OFFLINE stage)
 ### Input
-- A 'problem_name.m' file which returns a set of solver configuration parameters and a function that returns a set of input polynomial equations
+- A 'problem_name.m' file which returns a structure of solver configuration parameters and a function that returns a set of input polynomial equations
 - The configuration parameters are housed in a matlab struct 'cfg'.
 - The function that returns the input polynomials has the signature
 > function eqs = retrieve_eqs(a1,a2,..,c1,c2,...)
@@ -14,7 +14,11 @@
     - noOfRowsToReduce
     - heurisiticTemplatesize
 ### Output 
-    - A 'solver.m' file in 'solvers/<problem_name>
+    - A 'solver.m' file in 'solvers/problem_name'
+    - Two other files are generated in 'solvers/problem_name' which are to be checked for debugging purposes.
+        - eqs.txt
+        - A MAPLE script which was executed for generating the solver
+        
 ### Usage
 - Execute
   > build_test_solver(`p1`, `p2`, `p3`)
