@@ -15,7 +15,7 @@
     - heurisiticTemplatesize
 ### Output 
 - A `solver.m` file in 'solvers/problem_name'
-- Two other files are generated in `solvers/problem_name` which are to be checked for debugging purposes:
+- Two other files are generated in `solvers/problem_name` which are to be used for debugging purposes:
     - eqs.txt
     - A MAPLE script which was executed for generating the solver for problem `problem_name`
         
