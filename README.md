@@ -33,3 +33,9 @@
     > build_test_solver(0, 1, `p`)
     - `p` is th number of random instances to be used for testing the solver
 - When prompted for the problem name, enter the value of `problem_name`
+
+## References
+<a id="1">[1]</a> 
+Bhayani, S., Kukelova, Z., & Heikkilä, J. (2019). 
+A sparse resultant based method for efficient minimal solvers. 
+ArXiv, abs/1912.10268.
