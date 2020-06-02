@@ -216,5 +216,5 @@ writeline(fd, cat("B2 = C0(end-", numelems(bbs), "+1 : end, ", (numelems(bbs)+1)
 writebytes(fd, temp):
 writeline(fd, "\nend"):
 fclose(fd):
-printf("The solver has been generated and saved in %s.\n\n", solverFolderName);
+printf("The solver has been generated and saved in %s.\n\n", cat(solverFolderName));
 ########################################################################################################
