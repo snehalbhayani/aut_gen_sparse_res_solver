@@ -52,4 +52,4 @@
 Bhayani, S., Kukelova, Z., & Heikkilä, J. (2019). 
 A sparse resultant based method for efficient minimal solvers. 
 ArXiv, abs/1912.10268.
-[PDF](https://arxiv.org/abs/1912.10268)
+[PDF](https://arxiv.org/pdf/1912.10268.pdf)
