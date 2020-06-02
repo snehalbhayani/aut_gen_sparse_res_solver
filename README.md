@@ -1,6 +1,6 @@
 # Automatic generator for a sparse resultant based polynomial solver
 ## Required software
-- Our solver generator is based on MATLAB and Maple.
+- Software: MATLAB and Maple.
 - Currently supported MATLAB version: R2018a+
 - Currently supported Maple version: 2018+
 ## Setup
@@ -33,6 +33,7 @@
     - A MAPLE script which was executed for generating the solver for problem `problem_name`
         
 ### Usage
+- Navigate to the main folder of the generator
 - Execute
   > build_test_solver(`p1`, `p2`, `p3`)
   - `p1` is 1 if we want to generate a solver , 0 if we do not want to generate a solver
@@ -47,7 +48,11 @@
     - `p` is th number of random instances to be used for testing the solver
 - When prompted for the problem name, enter the value of `problem_name`
 
-## References
+## Further questions or comments
+- Please write to snehal.bhayani@oulu.fi or snehalbhayani04@gmail.com
+
+## Reference
+- If you are using this generator software please cite the following:
 <a id="1">[1]</a> 
 Bhayani, S., Kukelova, Z., & Heikkilä, J. (2019). 
 A sparse resultant based method for efficient minimal solvers. 
