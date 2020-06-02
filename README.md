@@ -1,5 +1,18 @@
 # Automatic generator for a sparse resultant based polynomial solver
-
+## Required software
+- Our solver generator is based on MATLAB and Maple.
+- Currently supported MATLAB version: R2018a+
+- Currently supported Maple version: 2018+
+## Setup
+- MATLAB installation should include the `symbolic maple toolbox` 
+- The Maple installation has to be setup as the symbolic engine in MATLAB insallation
+    - Older MATLAB versions connect to Maple through their `symbolic math toolboz`. 
+    - But MATLAB 2018+ have a separate Maple toolbox to be setup.
+- One quick way to check is by executing one of the following in the command MATLAB window
+    > maple 
+    If Maple is connected, the command should open a GUI Maple interface.
+- For more help on installing Maple toolbox for MATLAB, one can refer to <https://www.maplesoft.com/support/install/mtm11Install.html>.
+   
 ## Generating a solver (OFFLINE stage)
 ### Input
 - A `problem_name.m` file which returns a structure of solver configuration parameters and a function that returns a set of input polynomial equations
@@ -39,3 +52,4 @@
 Bhayani, S., Kukelova, Z., & Heikkilä, J. (2019). 
 A sparse resultant based method for efficient minimal solvers. 
 ArXiv, abs/1912.10268.
+[PDF](https://arxiv.org/abs/1912.10268)
