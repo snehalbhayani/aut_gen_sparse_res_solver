@@ -67,11 +67,11 @@ disp("Printed the equations to a txt file ");
 % The needed data files include 1. the file containing matlab coefficient
 % matrices for the polynomials to be solved. 2. a .txt file that houses all
 % of the symbolic equations to be solved.
-baseMapleFile = fopen('MapleSparseBasisGeneratorTemplate2.txt','r');
-filetext = fileread('MapleSparseBasisGeneratorTemplate2.txt');
+baseMapleFile = fopen('SolverGenerator.txt','r');
+filetext = fileread('SolverGenerator.txt');
 fclose(baseMapleFile);
 
-mapleFile = fopen(strcat(folderName, '/MapleSparseBasisGenerator.txt'),'w');
+mapleFile = fopen(strcat(folderName, '/SolverGenerator.txt'),'w');
 fprintf(mapleFile, '%s\n', strcat('solverFolderName := ',folderName, ':'));
 if length(cfg.sizeOfCombs) == 1
     fprintf(mapleFile ,'%s\n',strjoin({'sizeofcombs := [',num2str(cfg.sizeOfCombs), ']:' }, ''));
@@ -92,9 +92,9 @@ fprintf(mapleFile, '%s', filetext);
 fclose(mapleFile);
 
 if isunix
-    mapleExecutor = strjoin({'maple -q ', char(folderName), '/MapleSparseBasisGenerator.txt '}, '');
+    mapleExecutor = strjoin({'maple -q ', char(folderName), '/SolverGenerator.txt '}, '');
 elseif ispc
-    mapleExecutor = strjoin({'cmaple -q ', char(folderName), '/MapleSparseBasisGenerator.txt '}, '');
+    mapleExecutor = strjoin({'cmaple -q ', char(folderName), '/SolverGenerator.txt '}, '');
 else
     disp('Platform not supported')
 end

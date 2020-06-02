@@ -1,5 +1,5 @@
 extract_mon_basis:= proc(eqs, vars, sizeofcombs, polycomb, heurisiticbasislength) 
-local tempT, zcols, Cr, Ctemp, rows2rem, rows2kp, rowindices, colindices, cstried, c, Btemp, Ttemp, B1, T1, T2, B2, temp, bbs, gbs, cols2kp, cols2rem, simplex, selectedB, selectedT, counter, newpredeigsz, oldpredeigsz, modifiedCred, found, ti, crowstobedelet, rowColCnts, tempCred, Cred, tn, C, solverrank, testcoeffmat, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, allBs, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, ll, indicestotest:
+local tempT, zcols, Cr, Ctemp, rows2rem, rows2kp, rowindices, colindices, cstried, c, Btemp, Ttemp, B1, T1, T2, B2, temp, bbs, gbs, cols2kp, cols2rem, simplex, selectedB, selectedT, counter, newpredeigsz, oldpredeigsz, modifiedCred, found, ti, crowstobedelet, rowColCnts, tempCred, Cred, tn, C, solverrank, testcoeffmat, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, allBs, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, ll, indicestotest, indicestoskip:
 
 EE := eval(expand(eqs)):
 for i to ArrayTools[Size](EE)[2] do 
@@ -89,10 +89,11 @@ for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
                             selectedT := T:
                             allBs := [op(allBs), B]:
                             printf(" .................... \n"):
-                            printf(" | %d X %d, %d, %d, %d |\n",Tn, Bn, numelems(bbs), Tn - numelems(temp),LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]) ):
-            	        	printf("delta =  %{t}6f \n", LinearAlgebra[Transpose](convert(delta,Matrix))):
-                            printf("Min monomial =  %{t}6d, Max monomial = %{t}6d \n", LinearAlgebra[Transpose](convert(B[1],Matrix)), LinearAlgebra[Transpose](convert(B[-1],Matrix))):
-            	            printf("\n"):
+                            printf("Coefficient matrix: %d X %d \n", Tn, Bn); 
+                            printf("Predicted eigenvalue problem: %d \n", newpredeigsz):                            
+            	        	printf("delta =  %{t}2f \n", LinearAlgebra[Transpose](convert(delta,Matrix))):
+                            printf(" .................... \n"):
+                            
                         end if:
                     end if:
                 end if:
@@ -112,8 +113,7 @@ Bn := numelems(B):
 C := polytomat(convert(T, list), B, eval(eqs), vars, Bn, Tn); 
 testcoeffmat := LinearAlgebra[Modular][Mod](ithprime(1000), C, integer[8]):
 solverrank := LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat):
-printf("obtained a sparse monomial basis...... \n"):
-printf("Solver := %d * %d, rank := %d worst case eigensolver size = %d\n", Tn,Bn,solverrank, ArrayTools[Size](T[-1],1)):
+printf("Monomial basis extracted. \n"):
 temp := convert(T[-1], list, nested = true):
 oldpredeigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
 
@@ -125,7 +125,7 @@ found := numelems(B):
     B1 := B: T1 := convert(T,list):
     Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T1), `+`):    
     cstried :=[]:
-    printf(" trying with... %d \n", oldpredeigsz):    
+    printf("Attempting row-column removal... \n"):    
     ind := 1;    
     
     while numelems(B1) > heurisiticbasislength do
@@ -191,7 +191,7 @@ end do:
 T:=T2: B:=B2:
 Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t)[1] end proc, T), `+`):
 C := polytomat(convert(T, list), B, eval(eqs), vars, numelems(B), Tn): 
-printf("Solver := %d * %d, Current T = %s \n", Tn, numelems(B), convert(map(t->ArrayTools[Size](t)[1], T), string)):
+printf("Reduced coefficient matrix: %d X %d \n", Tn, numelems(B)):
 # =============================================================================================================
 # =============================================================================================================
 # For tracking an indice, we add '1' to the end of each element in the list of monomial multiples
@@ -203,7 +203,7 @@ for k to  ArrayTools[Size](T)[2] do
 end do:
 # =============================================================================================================
 
-printf("Reducing the rows to get a reduced matrix with smaller basis.\n"):
+printf("Removing the excess rows to get a reduced matrix with smaller basis.\n"):
 # =============================================================================================================
 # =============================================================================================================
 

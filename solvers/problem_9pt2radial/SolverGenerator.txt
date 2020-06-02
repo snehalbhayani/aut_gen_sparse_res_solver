@@ -1,5 +1,11 @@
+solverFolderName :=solvers/problem_9pt2radial:
+sizeofcombs := []:
+heurisitictemplatesize := 117:
+noofdatacoeff :=72:
+varorder := []:
+polycomb := [1,2,3]:
 read cat(solverFolderName, "/Eqs.txt"): 
-read "construct_sparse_coeff_mat.txt":
+read "ExtractMonomialBasis.txt":
 read "polysolver.map":
 read "ComputeSparsePolyBasis.txt": 
 march('open', "convex.mla"):
@@ -93,8 +99,7 @@ for hiddenvarind from fr to en do
         try:
             Toriginal, B, T := extract_mon_basis(reducedeqs, unHiddenVars, sizeofcombs, polycomb, heurisitictemplatesize):
             Tn := convert(map(at -> Size(T[at])[1], [seq(1 .. numelems(T))]), `+`):
-            Cr := polytomat(T, B, eval(reducedeqs), unHiddenVars, numelems(B), Tn):
-            print(T, Tn, numelems(B));	
+            Cr := polytomat(T, B, eval(reducedeqs), unHiddenVars, numelems(B), Tn):           
         	#======================================================================================
         	# We select the newly found basis only if it is smaller than the one previously selected.
             #======================================================================================		
@@ -103,8 +108,6 @@ for hiddenvarind from fr to en do
         		Bn := numelems(B):
         		monmultiples := T:
         		selectedhiddenvarind := hiddenvarind:
-        		printf("Sparse basis size =  %d \n", numelems(sparsebasis));
-        		printf(" No. of rows = %d \n", convert(map(at -> ArrayTools[Size](monmultiples[at])[1], [seq(1..numelems(eqs))]), `+`));
             end if:
         catch:
             print("error"):
@@ -149,7 +152,7 @@ degreehidvar := max(map(proc (f) options operator, arrow; degree(f, cat('a',hidd
 allcs := map(proc (i) options operator, arrow; coeff(Cred, cat('a',hiddenVarNumber)^i) end proc, [seq(1 .. degreehidvar)]):
 Cs := convert([coeff(Cred*cat('a',hiddenVarNumber), cat('a',hiddenVarNumber)), op(allcs)], Matrix):
 
-printf("The size of sparse basis is %d .\n", Bn);
+printf("The size of sparse basis is %d.\n", Bn);
 
 #======================================================================================
 # Generating the solver and the template to calculate var values from eigen vectors
@@ -219,4 +222,5 @@ writeline(fd, cat("B2 = C0(end-", numelems(bbs), "+1 : end, ", (numelems(bbs)+1)
 writebytes(fd, temp):
 writeline(fd, "\nend"):
 fclose(fd):
+printf("The solver has been generated and saved in %s.\n\n", solverFolderName);
 ########################################################################################################
