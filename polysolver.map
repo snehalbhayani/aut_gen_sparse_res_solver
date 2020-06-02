@@ -399,7 +399,7 @@ end proc:
 
 
 polytomat := proc(T,B,eqs,vars,Bn,Tn)
-local i,m,mon,aa, Bmons, u, r, Coeffs, t, monTomul, indOfMon, indOfShiftdMon, mons2, CoeffC, indOfMonProd, C:
+local i,m,mon, mons1, aa, Bmons, u, r, Coeffs, t, monTomul, indOfMon, indOfShiftdMon, mons2, CoeffC, indOfMonProd, C:
 Bmons := Matrix(Bn, 1):
 for u to Bn do 
 	Bmons[u, 1] := convert(`~`[`^`](vars, B[u, () .. ()]), `*`): 

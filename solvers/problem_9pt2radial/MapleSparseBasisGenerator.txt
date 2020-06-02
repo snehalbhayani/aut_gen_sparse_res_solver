@@ -97,7 +97,7 @@ for hiddenvarind from fr to en do
         # We find sparse basis for the reduced equations. Here the coefficients are 'nc's.
     	#======================================================================================
         try:
-            Boriginal, Toriginal, B, T := extract_mon_basis(reducedeqs, unHiddenVars, sizeofcombs, polycomb, heurisitictemplatesize):
+            Toriginal, B, T := extract_mon_basis(reducedeqs, unHiddenVars, sizeofcombs, polycomb, heurisitictemplatesize):
             Tn := convert(map(at -> Size(T[at])[1], [seq(1 .. numelems(T))]), `+`):
             Cr := polytomat(T, B, eval(reducedeqs), unHiddenVars, numelems(B), Tn):
             print(T, Tn, numelems(B));	

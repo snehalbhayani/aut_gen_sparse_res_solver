@@ -1,5 +1,5 @@
 extract_mon_basis:= proc(eqs, vars, sizeofcombs, polycomb, heurisiticbasislength) 
-local temp, bbs, gbscols2kp, cols2rem, simplex, selectedB, selectedT, counter, newpredeigsz, oldpredeigsz, modifiedCred, found, ti, crowstobedelet, rowColCnts, tempCred, Cred, tn, C, solverrank, testcoeffmat, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, allBs, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, ll, indicestotest:
+local zcols, Ctemp, rows2rem, rows2kp, rowindices, colindices, cstried, c, Btemp, Ttemp, B1, T1, T2, B2, temp, bbs, gbs, cols2kp, cols2rem, simplex, selectedB, selectedT, counter, newpredeigsz, oldpredeigsz, modifiedCred, found, ti, crowstobedelet, rowColCnts, tempCred, Cred, tn, C, solverrank, testcoeffmat, Tn, ii, baks, k, T, Bset, minmonnorm, isbnpresent, Bn, B, interiorintpoints, hp1s, hlfsps, translatedconvhull, delta, deltatoskip, deltasiterator, combind, i, allBs, minkowskis, ind, PForMink, comb, vci, variouscombinations, A, v, P, EE, ll, indicestotest:
 
 EE := eval(expand(eqs)):
 for i to ArrayTools[Size](EE)[2] do 
@@ -35,7 +35,7 @@ allBs := []:
 oldpredeigsz := infinity:
 for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
 	randomize():
-	printf("Trying out polytope combination, %s \n", convert(variouscombinations[combind],string));
+	printf("Considering the polytopes : %s \n", convert(variouscombinations[combind],string));
     deltasiterator := combinat[cartprod](map(proc (i1) options operator, arrow; map(proc (j) options operator, arrow; j end proc, [ -0.01, 0.01, 0]) end proc, [seq(1 .. numelems(vars))])):	
     while not deltasiterator[finished] do
        delta := deltasiterator[nextvalue]():
@@ -79,10 +79,10 @@ for combind in combinat[randperm]([seq(1..numelems(variouscombinations))]) do
                 solverrank := LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat):
 
 	            if Bn = solverrank then
-                    newpredaigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
+                    newpredeigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
 
-    		        if newpredaigsz <= oldpredeigsz and convert(map(b->numelems(b)>Bn, allBs), `and`) then
-                        oldpredeigsz := newpredaigsz:
+    		        if newpredeigsz <= oldpredeigsz and convert(map(b->numelems(b)>Bn, allBs), `and`) then
+                        oldpredeigsz := newpredeigsz:
 
                         if  LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..Tn - numelems(temp), gbs]) = numelems(gbs) then                                                                                    
                             selectedB := B:
@@ -114,7 +114,6 @@ testcoeffmat := LinearAlgebra[Modular][Mod](ithprime(1000), C, integer[8]):
 solverrank := LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat):
 printf("obtained a sparse monomial basis...... \n"):
 printf("Solver := %d * %d, rank := %d worst case eigensolver size = %d\n", Tn,Bn,solverrank, ArrayTools[Size](T[-1],1)):
-Boriginal := B:
 temp := convert(T[-1], list, nested = true):
 oldpredeigsz := Bn - LinearAlgebra[Modular][Rank](ithprime(1000), testcoeffmat[1..(Tn - numelems(temp)), ..]):
 
@@ -124,12 +123,10 @@ T2 := T1: B2 := B1:
 found := numelems(B):
     while numelems(B2) > heurisiticbasislength do
     B1 := B: T1 := convert(T,list):
-    Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T1), `+`):
-    rowindicestotest := [seq(1..Tn)]:
+    Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T1), `+`):    
     cstried :=[]:
     printf(" trying with... %d \n", oldpredeigsz):    
-    ind := 1;
-    inds := []:
+    ind := 1;    
     
     while numelems(B1) > heurisiticbasislength do
     	randomize():
@@ -158,11 +155,10 @@ found := numelems(B):
         # Modified C
         Ctemp := Ctemp[rows2kp, () .. ()]:                
         if ArrayTools[Size](Ctemp,1) < ArrayTools[Size](Ctemp,2) or ArrayTools[Size](Ctemp,1) = 0 then next: end if:
-
-        Ctempb := map(i -> `if`(i = 0, 0, 1), Ctemp):     
-        zdcols := convert(ArrayTools[AddAlongDimension](Ctempb, 1), list):
-        cols2kp := select(j -> zdcols[j] <> 0, [seq(1 .. numelems(zdcols))]):
-        cols2rem := select(j -> zdcols[j] = 0, [seq(1 .. numelems(zdcols))]):     
+        
+        zcols := convert(ArrayTools[AddAlongDimension](map(i -> `if`(i = 0, 0, 1), Ctemp), 1), list):
+        cols2kp := select(j -> zcols[j] <> 0, [seq(1 .. numelems(zcols))]):
+        cols2rem := select(j -> zcols[j] = 0, [seq(1 .. numelems(zcols))]):     
         Ctemp := Ctemp[() .. (), cols2kp]: 
         Btemp := Btemp[cols2kp]:                
         if numelems(cols2rem) = 0  then next: end if:        
@@ -175,25 +171,21 @@ found := numelems(B):
         bbs := map(i1 -> select(k -> Btemp[k] = [temp[i1][1], op(temp[i1][2..])], [seq(1 .. numelems(Btemp))])[1], [seq(1 .. numelems(temp))]):
         gbs := convert(convert([seq(1 .. numelems(Btemp))], set) minus convert(bbs, set), list):
         Ck := Ctemp[[seq(1..convert(map(t -> ArrayTools[Size](t,1), Ttemp[..-2]), `+`))], gbs]:
-        difff := ArrayTools[Size](Ck)[2]-LinearAlgebra[Modular][Rank](ithprime(1000), Ck):        
-        if (difff <> 0)  then next: end if:
+        
+        if (ArrayTools[Size](Ck)[2]-LinearAlgebra[Modular][Rank](ithprime(1000), Ck) <> 0)  then next: end if:
 
         newpredeigsz := numelems(Btemp) - LinearAlgebra[Modular][Rank](ithprime(1000), Ctemp[1..convert(map(proc (t) options operator, arrow; ArrayTools[Size](t)[1] end proc, Ttemp[..-2]), `+`), ..]):        
         if newpredeigsz > oldpredeigsz then next: end if:
-        
-        print(c, numelems(rows2rem), numelems(cols2rem), ArrayTools[Size](Ctemp), numelems(bbs), difff, newpredeigsz);
         B1 := Btemp:
         T1 := Ttemp:    
-        cstried := []:    
-        rowindicestotest := rowindicestotest[rowindices]:     
-        inds := [op(inds), op(c)]:   
+        cstried := []:            
+        
     end do:
 
     if found > numelems(B1) then 
         T2 := T1:
         B2 := B1:
-        found := numelems(B1):
-        print(inds):
+        found := numelems(B1):        
     end if:
 end do:
 
@@ -215,7 +207,7 @@ end do:
 printf("Reducing the rows to get a reduced matrix with smaller basis.\n"):
 # =============================================================================================================
 # =============================================================================================================
-print(B);
+
 noofnonzelems := infinity:
 for counter from 1 to 500 do
     randomize():
@@ -278,27 +270,18 @@ end do:
     gbs := convert(convert([seq(1 .. numelems(B))], set) minus convert(bbs, set), list):
     Cr := polytomat(convert(T1, list), B, eval(eqs), vars, numelems(B), convert(map(proc (t) options operator, arrow; ArrayTools[Size](t)[1] end proc, T1), `+`)):
     temp := Cr[1 .. convert(map(proc (t) options operator, arrow; ArrayTools[Size](t)[1] end proc, T1[() .. -2]), `+`), gbs]:
-    
-    k := numelems(select(t->t<>0, convert(temp,list))):
-    #DIGITS := 20:
-    #k := LinearAlgebra[ConditionNumber](evalf(temp)):
-    if k < noofnonzelems then 
-        T2 := T1:
-        noofnonzelems  := k:
-        print(k);
-        printf("%d",convert(indicestotest,Matrix));
+    T2 := T1:
+    if ArrayTools[Size](Cred,1) = ArrayTools[Size](Cred,2) then     
+        break: 
     end if:
-    #DIGITS := 10:
-
-if ArrayTools[Size](Cred,1) = ArrayTools[Size](Cred,2) then print("Row indices to be deleted ", convert(crowstobedelet,string));  break: end if:
 end do:
 T := T2:
 
-print(T, numelems(B), "........................................");
+#print(T, numelems(B), "........................................");
 Tn := convert(map(proc (t) options operator, arrow; ArrayTools[Size](t,1) end proc, T), `+`):
 
 # =============================================================================================================
 Cr := polytomat(convert(T, list), B, eval(eqs), vars, numelems(B), convert(map(proc (t) options operator, arrow; ArrayTools[Size](t)[1] end proc, T), `+`)):
 
-return Boriginal, selectedT, B, T:
+return selectedT, B, T:
 end proc:
