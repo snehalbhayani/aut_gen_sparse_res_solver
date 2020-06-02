@@ -10,7 +10,7 @@
     - But MATLAB 2018+ have a separate Maple toolbox to be setup.
 - One quick way to check is by executing one of the following in the command MATLAB window
     > maple 
-    If Maple is connected, the command should open a GUI Maple interface.
+    - If Maple is connected, the command should open a GUI Maple interface.
 - For more help on installing Maple toolbox for MATLAB, one can refer to <https://www.maplesoft.com/support/install/mtm11Install.html>.
    
 ## Generating a solver (OFFLINE stage)
