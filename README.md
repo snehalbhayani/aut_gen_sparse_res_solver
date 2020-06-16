@@ -61,7 +61,7 @@ ArXiv, abs/1912.10268.
 [PDF](https://arxiv.org/pdf/1912.10268.pdf)
 Or 
 ## Citation
-@misc{bhayani2019sparse,
+> @misc{bhayani2019sparse,
     title={A sparse resultant based method for efficient minimal solvers},
     author={Snehal Bhayani and Zuzana Kukelova and Janne Heikkilä},
     year={2019},
