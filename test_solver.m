@@ -16,15 +16,18 @@ hiddenvar = strjoin({'a',num2str(cfg.hiddenVarNum)},'');
 vars = [vars{:}];
 coeffs = [data{:}];
 vars = transpose([strjoin({'a', num2str(cfg.hiddenVarNum)}, ''), vars(find(vars~=hiddenvar))]);
-
+load('f.mat');
 for index = 1:iter_cnt
-    data = randn(length(coeffs), 1);
+%     data = randn(length(coeffs), 1);
+    data = coeffdatas(index,:)';
+%     data = data/norm(data);
     res = [];
     [PEPSolutions] = solver(data);
     eqs = subs(symeqs, coeffs, data');
     PEPSolutions = transpose(PEPSolutions);
     for i = 1:size(PEPSolutions,2)
         sol = PEPSolutions([1:end-1],i);
+%         sol = [5;9/104;-16/24];
         try
             kthres = max(abs(eval(subs(eqs, vars, sol))))/norm(abs(sol));
             if kthres == 0
@@ -35,8 +38,10 @@ for index = 1:iter_cnt
         end
     end
     all_results = [all_results, res];
-    
-    disp(mean(log10(all_results)));
+    minres = min(log10(res));
+    gt = PEPSolutions(:, log10(res) == minres);
+    disp(min(log10(res)));
+%     disp(gt);
 end
 %%
 disp(mean(log10(all_results)));

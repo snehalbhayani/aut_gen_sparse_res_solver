@@ -1,9 +1,9 @@
-solverFolderName :=solvers/problem_opt_pnp_hesch:
-sizeofcombs := [3]:
-heurisitictemplatesize := 114:
-noofdatacoeff :=35:
+solverFolderName :=solvers/problem_4view_calib_planar_scene:
+sizeofcombs := [4]:
+heurisitictemplatesize := 650:
+noofdatacoeff :=27:
 varorder := []:
-polycomb := [1,2,3]:
+polycomb := []:
 read cat(solverFolderName, "/Eqs.txt"): 
 read "ExtractMonomialBasis.txt":
 read "polysolver.map":
@@ -51,7 +51,7 @@ for hiddenvarind from fr to en do
         # Iterate through all possible permutations of the variables in question. 
         #======================================================================================
 
-    for varperm in [combinat[permute](vars)[1]] do
+    for varperm in [combinat[randperm](vars)] do
             #======================================================================================
             # Convert polynomial equations to matrix form	
             #======================================================================================
@@ -69,9 +69,10 @@ for hiddenvarind from fr to en do
     	#======================================================================================
     	# Random instance for the reduced equations
     	#======================================================================================
-    
+        
         for i to noofdatacoeff do  
-    		assign(cat('c', i), (i+ithprime(100))/(i-ithprime(10000))):
+    		#assign(cat('c', i), dat[i]):
+             assign(cat('c', i), RandomTools[Generate](rational(range = -10 .. 10)));
     	end do:
     	for i to numoftempts do 
     		assign(cat('t', i), tempts[i]): 

@@ -1,9 +1,9 @@
-solverFolderName :=solvers/problem_opt_pnp_hesch:
+solverFolderName :=solvers/problem_gen_cam_homography:
 sizeofcombs := [3]:
-heurisitictemplatesize := 114:
-noofdatacoeff :=35:
+heurisitictemplatesize := 650:
+noofdatacoeff :=18:
 varorder := []:
-polycomb := [1,2,3]:
+polycomb := []:
 read cat(solverFolderName, "/Eqs.txt"): 
 read "ExtractMonomialBasis.txt":
 read "polysolver.map":
@@ -69,9 +69,10 @@ for hiddenvarind from fr to en do
     	#======================================================================================
     	# Random instance for the reduced equations
     	#======================================================================================
-    
+        
         for i to noofdatacoeff do  
-    		assign(cat('c', i), (i+ithprime(100))/(i-ithprime(10000))):
+    		#assign(cat('c', i), dat[i]):
+             assign(cat('c', i), (i+ithprime(100))/(i-ithprime(10000))):
     	end do:
     	for i to numoftempts do 
     		assign(cat('t', i), tempts[i]): 

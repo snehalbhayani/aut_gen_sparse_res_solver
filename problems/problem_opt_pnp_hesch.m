@@ -35,7 +35,7 @@ cfg.hiddenVarNum = 3;
 % (1) Either the size of polynomial combinations to be tested.
 cfg.sizeOfCombs = [3];
 % (2) Or the specific polynomial combination to be tested.
-cfg.polyComb=[];
+cfg.polyComb=[1;2;3];
 % (3) Or if both are given, the polycomb takes precedence over sizeofcombs.
 
 % The number of rows to be GJ eliminated to obtained a reduced input
@@ -46,5 +46,5 @@ cfg.noOfRowsToReduce = 0;
 % knowledge, governing the smallest template that can be generated.
 % Hence one can start with a larger size and try to test by reducing the size
 % of the template.
-cfg.heurisiticTemplatesize = 113;
+cfg.heurisiticTemplatesize = 114;
 end
