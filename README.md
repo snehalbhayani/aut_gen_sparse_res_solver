@@ -53,9 +53,12 @@
 - Please write to snehal.bhayani@oulu.fi or snehalbhayani04@gmail.com
 
 ## Reference
-- If you are using this generator software please cite the following:
+- If you are using this generator software please cite the following:  
+
 <a id="1">[1]</a> 
 Bhayani, S., Kukelova, Z., & Heikkilä, J. (2019). 
 A sparse resultant based method for efficient minimal solvers. 
 ArXiv, abs/1912.10268.
-[PDF](https://arxiv.org/pdf/1912.10268.pdf)
+[PDF](https://arxiv.org/pdf/1912.10268.pdf)  
+
+
