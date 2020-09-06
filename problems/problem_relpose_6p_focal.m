@@ -27,17 +27,17 @@ cfg.numOfVars = 3;
 % x_i - l.
 % If set to -1, all variables will be tested one
 % by one
-cfg.hiddenvarnum = 2;
+cfg.hiddenVarNum = 2;
 % (1) Either the size of polynomial combinations to be tested.
-cfg.sizeofcombs = [];
+cfg.sizeOfCombs = [];
 % (2) Or the specific polynomial combination to be tested.
-cfg.polycomb=[1;11];
+cfg.polyComb=[1;11];
 % The number of rows to be GJ eliminated to obtained a reduced input
 % polynomial system as an input to the generator.
-cfg.noofrowstoreduce = 0;
+cfg.noOfRowsToReduce = 0;
 % The heuristic size of the template. There is no theory to the best of our
 % knowledge, governing the smallest template that can be generated.
 % Hence one can start with a larger size and try to test by reducing the size
 % of the template
-cfg.heurisitictemplatesize = 200;
+cfg.heurisiticTemplatesize = 200;
 end
