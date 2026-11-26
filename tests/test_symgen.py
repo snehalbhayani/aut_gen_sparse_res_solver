@@ -95,6 +95,34 @@ class TestTemplate(unittest.TestCase):
         self.assertGreater(stats['good_solutions_per_instance'], 14)
 
 
+class TestSaturatedFocal(unittest.TestCase):
+    def test_parsed_file_matches_derivation(self):
+        from symgen.derive_6p_focal_sat import derive
+        vars_, params, orig, new = derive()
+        pb = load_matlab_problem(os.path.join(ROOT, 'problems', 'problem_relpose_6p_focal_sat.m'))
+        self.assertEqual(len(pb.eqs), len(orig) + len(new))
+        for e, f in zip(pb.eqs, orig + new):
+            self.assertEqual(sympy.expand(e - f), 0)
+        self.assertTrue(all(sympy.degree(g, vars_[2]) == 1 for g in new))
+
+    def test_spurious_solutions_removed(self):
+        pb = load_matlab_problem(os.path.join(ROOT, 'problems', 'problem_relpose_6p_focal_sat.m'))
+        T = search(pb, verbose=False, keep=1, cfg={'combs': [[10, 11, 19]], 'try_orders': False})
+        self.assertEqual(T.size[0], 15)  # was 18 = 15 + 3 at a3 = infinity
+        stats = evaluate(pb, T, trials=10)
+        self.assertGreater(stats['good_solutions_per_instance'], 14)
+
+
+class TestEigenTarget(unittest.TestCase):
+    def test_tradeoff_keeps_validity(self):
+        pb = conics_problem()
+        small = search(pb, verbose=False)
+        big = search(pb, verbose=False, cfg={'eigen_target': small.size[0] + 2})
+        self.assertEqual(big.size[0], small.size[0] + 2)
+        self.assertLessEqual(big.size[1], small.size[1])
+        self.assertGreater(evaluate(pb, big, trials=10)['good_solutions_per_instance'], 3.9)
+
+
 @unittest.skipUnless(shutil.which('octave'), 'octave not installed')
 class TestMatlabCodegen(unittest.TestCase):
     def test_conics_in_octave(self):

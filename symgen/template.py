@@ -74,8 +74,11 @@ class Template:
 
 
 class TemplateBuilder:
-    def __init__(self, problem, h, seed=0, verbose=False, weights=None):
+    def __init__(self, problem, h, seed=0, verbose=False, weights=None, eigen_target=1):
         self.pb = problem
+        # stop the eigen basis reduction at this size (trade a bigger eigenvalue
+        # problem for a smaller elimination A2); 1 = reduce to the minimum
+        self.eigen_target = max(1, eigen_target or 1)
         # removal priority of monomials: heavier (w.m) monomials are removed first
         self.w = tuple(weights) if weights else (1,) * problem.n
         self.n = problem.n
@@ -195,7 +198,7 @@ class TemplateBuilder:
         while changed:
             changed = False
             for e in sorted(Ecur, key=self._prio):
-                if len(Ecur) == 1:
+                if len(Ecur) <= self.eigen_target:
                     break
                 v = self.top_column(top, e)
                 touched_by_l = _sub(e, self.eh) in Ecur
@@ -319,6 +322,8 @@ def candidate_bases(problem, h, combs, shifts=None, extra='both'):
 
 def default_combs(problem, cfg):
     m = len(problem.eqs)
+    if cfg.get('combs'):
+        return [list(c) for c in cfg['combs']]
     if cfg.get('poly_comb'):
         return [cfg['poly_comb']]
     sizes = cfg.get('size_of_combs') or [problem.n, problem.n + 1]
@@ -335,7 +340,7 @@ def search(problem, cfg=None, seed=0, keep=4, verbose=True, log=print):
     hs = range(problem.n) if hv in (-1, None) else [hv - 1]
     pool = []
     for h in hs:
-        tb = TemplateBuilder(problem, h, seed=seed)
+        tb = TemplateBuilder(problem, h, seed=seed, eigen_target=cfg.get('eigen_target'))
         ncand = 0
         for desc, B in candidate_bases(problem, h, default_combs(problem, cfg), extra=cfg.get('extra', 'both')):
             ncand += 1
@@ -361,7 +366,7 @@ def search(problem, cfg=None, seed=0, keep=4, verbose=True, log=print):
     best = None
     for score, h, desc, nB, top, E in pool[:keep]:
         for w in weightings:
-            tb = TemplateBuilder(problem, h, seed=seed, weights=w)
+            tb = TemplateBuilder(problem, h, seed=seed, weights=w, eigen_target=cfg.get('eigen_target'))
             top2, E2 = tb.reduce(top, E)
             T = tb.finalize(top2, E2, dict(desc, basis_size=nB, hidden_var=h + 1, weights=w,
                                             initial=(len(E), len(tb.columns(top, E)) - len(E)),

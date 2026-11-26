@@ -92,7 +92,7 @@ def load_matlab_problem(path):
     params = [syms[a] for a in args if a.startswith('c')]
     eqs = {}
     for em in re.finditer(r'^\s*eqs\((\d+)\)\s*=\s*([^;]*);', src, re.M):
-        expr = em.group(2).replace('^', '**')
+        expr = em.group(2).replace('.^', '^').replace('.*', '*').replace('./', '/').replace('^', '**')
         eqs[int(em.group(1))] = sympy.parse_expr(expr, local_dict=syms)
     cfg_raw = {k.lower(): _matlab_value(v) for k, v in re.findall(r'^\s*cfg\.(\w+)\s*=\s*(\[[^\]]*\]|[^;\n]*)', src, re.M)}
     cfg = {
