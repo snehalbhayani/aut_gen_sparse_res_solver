@@ -143,7 +143,8 @@ multiplication by x_h on A = H^0(O_Z), via ker M_k ≅ A*.
   corank grows with k, and templates get larger without bound.
 - **Variable recovery** (pairs x^e, x^{e+e_i}) is not covered. It is a separate
   combinatorial condition.
-- **Not formalised in Lean.** A formal proof needs toric varieties, coherent
-  cohomology and Serre vanishing (or a Hilbert–Serre plus localisation argument for
-  graded modules over the semigroup ring of the cone over Q). Mathlib does not have
-  these yet.
+- **Lean status:** see `research/lean/README.md`. Theorems 1–2, Step 3 and the
+  assembly `Theorem3.toric_eigen_size` are machine-checked. The Serre-vanishing step
+  (R3) is an explicit hypothesis, because Mathlib has no toric varieties or coherent
+  cohomology. The independence step (R1/R2) is still a hypothesis and is the next
+  item to prove.

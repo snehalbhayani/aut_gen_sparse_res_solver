@@ -16,7 +16,7 @@ open Classical
 
 namespace EigenSize
 
-variable {K : Type*} [Field K] {β : Type*} [Fintype β] {W : Type*} [AddCommGroup W] [Module K W]
+variable {K : Type*} [Field K] {β : Type*} [Fintype β] [DecidableEq β] {W : Type*} [AddCommGroup W] [Module K W]
 
 /-- `M` is injective on vectors vanishing outside `S` (validity with `G = S`). -/
 def InjOnSupp (M : (β → K) →ₗ[K] W) (S : Finset β) : Prop :=

@@ -4,6 +4,24 @@
 - `EigenSize.lean`: Step 3 of `../proof/exact_count.md`. For a feasible template, the
   eigen-basis reduction reaches exactly the corank, and every valid template has
   an eigen basis at least that large.
+- `Theorem3.lean`: assembles Theorem 3 (toric eigen size, simple points) in
+  `toric_eigen_size`. Two inputs are explicit hypotheses:
+  - `H_span` (**R3**, the Serre-vanishing step, deliberately left as a hypothesis);
+  - `H_sep` (**R1/R2**, independence of the point vectors on the shiftable columns;
+    elementary for large dilations kQ, and the next milestone).
+
+## Formalisation status of Theorem 3
+
+| piece | status |
+|---|---|
+| Theorem 1, obstruction (`no_valid_template`) | proved |
+| Theorem 2, spurious eigenpairs (`spurious_eigenpair`) | proved |
+| point vectors lie in the kernel (`face_kernel`, `point_mem_ker`) | proved |
+| Step 3, minimal eigen size = corank (`min_eigen_size_eq_corank`) | proved |
+| assembly: corank = feasible eigen size = \|Z\| (`toric_eigen_size`) | proved, from `H_span` and `H_sep` |
+| R1/R2, `H_sep` for kQ with k large and x_h regular on Z | to do (elementary) |
+| R3, `H_span` (Serre vanishing) | hypothesis by design |
+| points of multiplicity > 1 | not covered (simple points only) |
 
 It builds with Lean 4.19.0 and Mathlib v4.19.0. `#print axioms` for
 `face_kernel`, `no_valid_template` and `spurious_eigenpair` reports only the
