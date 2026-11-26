@@ -38,48 +38,73 @@ with the variables of the equation that contains h.)
 The family of good sets U is closed under union, but there is no unique minimal one,
 which hints at hardness.
 
-**Easy special cases.** These are informal observations, not yet written proofs:
+## Theorem C1 (NP-hardness, flat templates) — proved
 
-- **Supports of size ≤ 2, generic coefficients.** Spanning means every connected
-  component of (U, available columns) contains a cycle. The minimum is a shortest
-  cycle (or a "theta" structure) through B: polynomial time.
-- **Difference-type columns e_u − e_v (graphic matroid).** The rank on U is at most
-  |U| − (#components), so spanning needs "anchor" columns. The minimum is a shortest
-  path to an anchor: polynomial time.
-- **Biased graphs** (e_u − e_v + α e_z): the minimum is a shortest unbalanced cycle,
-  again polynomial time.
+**Theorem.** MIN-ELIM restricted to flat templates (columns of degree ≤ 1) is
+**strongly NP-complete**. It stays NP-complete for affine-linear systems with a
+unique solution, so that the minimal eigen size is 1 and MIN-ELIM-N is NP-complete
+too. It holds for coefficients in a small integer range and also for generic
+coefficients.
 
-**Why the obvious reductions fail.** Candidate source problems are:
+**Reduction from SET COVER.** Take a universe X, sets 𝒮 = {S_1, …, S_m} covering X,
+and a budget k. Variables: h, one x per element of X, one y_S per set. The linear
+parts of the equations:
 
-- MINIMUM WEIGHT SOLUTION TO LINEAR EQUATIONS (Garey–Johnson MP5, NP-complete);
-- SPARK, the smallest linearly dependent set of columns (NP-hard: Tillmann–Pfetsch,
-  IEEE Trans. Inf. Theory 2014; to be verified);
-- MINIMUM k-UNION.
+    f0       = h − Σ_{x∈X} x
+    f_{S,x}  = y_S + r_{S,x} x            for every S ∈ 𝒮 and x ∈ S
+    f'_S     = y_S + r'_S x_1(S)          with r'_S ≠ r_{S,x_1(S)}
 
-A template's cost is the **union of the supports of the rows used**, not the support
-of the resulting combination. So encodings of sparse solutions or circuits pay for
-every column a row touches, and the cost no longer tracks the sparsity being encoded.
-Graph-like (≤ 2-variable) equations are easy in every coefficient regime above.
+Here x_1(S) is any fixed element of S. The constants are chosen so that a fixed point
+v* is a solution: each f(v) = a·(v − v*). The whole system then has the unique solution
+v*, because every x is covered.
 
-**Working conjecture.** MIN-CLOSED-SPAN, and hence MIN-ELIM, is NP-hard. Hardness
-needs (i) equations involving at least 3 variables and (ii) non-generic rational
-coefficients. In the generic, structural case the problem becomes a density/matching
-problem on a hypergraph. Whether that case is polynomial is itself open; it is
-related to finding the smallest subhypergraph with at least as many edges as vertices
-that satisfies Hall's condition.
+**Claim.** The minimal flat template has |G| = 1 + |X| + OPT_SC.
 
-If both hold, the computer-vision message is: **non-genericity is the source of
-hardness**.
+*Proof.* A flat template has E = {1} and G = U ∋ h, and is valid iff the equations
+supported in U have rank |U| on U.
+
+- **h forces X.** f0 is the only equation containing h. So the column h is non-zero only
+  if f0 is a row, which forces X ⊆ U. Write Y′ = U ∩ {y_S}, so |U| = 1 + |X| + |Y′|.
+- **Rank splits.** f0 is the only row with an h-entry, so rank = 1 + rank(gadget rows on
+  X ∪ Y′).
+- **Gadget rows are a frame matroid.** Each gadget row is 2-sparse, an edge y_S – x with a
+  "gain". The rank of 2-sparse vectors on vertex set V is |V| − (#balanced components).
+  A component is balanced if every cycle has gain product 1; trees and isolated vertices
+  are balanced (Zaslavsky's frame matroids).
+- **Every component with a chosen y_S is unbalanced.** The double edge y_S – x_1(S) is a
+  2-cycle with gain product r/r′ ≠ 1.
+- **Valid ⇔ cover.** If Y′ covers X, every component contains a chosen y_S, so the rank is
+  |X| + |Y′| and the template is valid. If some x is uncovered, it is an isolated vertex,
+  so the rank is at most |X| + |Y′| − 1 and the template is invalid.
+
+So the valid flat templates are exactly {h} ∪ X ∪ Y′ with Y′ a set cover. ∎
+
+Membership in NP is shown above, so the problem is NP-complete. The coefficients can be
+taken in {−1, 1, 2, 3}, so it is strongly NP-hard. With generic coefficients every cycle
+is unbalanced, and the same proof applies.
+
+**Brute-force check** (`research/convexity/setcover_reduction.py`): on 40/40 random
+instances, the minimal flat |G| equals 1 + |X| + OPT_SC, with small-integer and random
+rational coefficients.
+
+**Correction of the earlier working conjecture.** The notes previously guessed that
+hardness needs ≥ 3-variable equations and non-generic coefficients. **Both guesses are
+wrong.** The reduction uses 2-variable gadget equations, and generic coefficients do not
+help. The earlier "easy" cases (shortest cycle or path) only apply when the equations
+containing h are sparse. Here f0 involves every element, and that turns the problem into
+a covering problem. **The hardness is combinatorial (set cover), not caused by
+non-genericity.**
 
 ## Plan
 
-1. Prove NP-hardness of MIN-CLOSED-SPAN by reduction from SPARK or MP5, with gadgets
-   whose supports have size ≥ 3. The main obstacle is making the cost equal the
-   encoded sparsity.
-2. Prove that flat templates are optimal for affine-linear systems, i.e. that
-   multiplying linear equations by monomials never reduces |G|. This lifts hardness
-   from MIN-CLOSED-SPAN to MIN-ELIM.
-3. Settle the generic (structural) case. If it is polynomial, that confirms the
-   message above.
-4. Approximation: is MIN-ELIM hard to approximate (cf. Amaldi–Kann 1998 for minimum
-   unsatisfied linear relations)?
+1. ~~NP-hardness of the flat linear case~~: done (Theorem C1).
+2. **Lifting lemma.** For affine-linear systems, do non-flat templates (rows x^t f) ever
+   give smaller |G|? If not, Theorem C1 holds for unrestricted MIN-ELIM. This is
+   subtle: multipliers containing h let gadget rows reach h-monomials.
+3. **Approximation.** The cost has an additive offset of 1 + |X|, so set cover's ln n
+   inapproximability does not transfer directly. A padded or gap-preserving variant is
+   needed.
+4. **Genuine minimal problems.** Hardness for systems with N > 1 and the eigen size fixed
+   at N (e.g. by tensoring the gadget with a univariate factor in a new variable).
+5. **Lean.** The proof is finite linear algebra plus the frame-matroid rank formula; it is
+   formalisable with the existing set-up.
