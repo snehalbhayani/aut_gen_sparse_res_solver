@@ -49,6 +49,11 @@
     - `p` is th number of random instances to be used for testing the solver
 - When prompted for the problem name, enter the value of `problem_name`
 
+## Python generator (no MATLAB/Maple needed for the offline stage)
+- `symgen/` is a Python/SymPy reimplementation of the offline stage. Each template choice is made by an exact rank test over a prime field, so results are repeatable and every template is valid for generic data. It reads the same `problems/*.m` files and writes `solvers_symgen/<name>/solver.m`, which uses the same calling convention.
+  > python3 -m symgen problems/problem_relpose_6p_focal.m
+- See [symgen/README.md](symgen/README.md) for the method and a comparison with the Maple-generated solvers.
+
 ## Further questions or comments
 - Please write to snehal.bhayani@oulu.fi or snehalbhayani04@gmail.com
 
