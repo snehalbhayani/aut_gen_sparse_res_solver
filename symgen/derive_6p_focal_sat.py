@@ -20,6 +20,11 @@ saturation of the ideal w.r.t. the hyperplane at infinity in a3, with
 coefficients that are explicit polynomials in the data.
 
 Run:  python3 -m symgen.derive_6p_focal_sat   -> problems/problem_relpose_6p_focal_sat.m
+      python3 -m symgen symgen.derive_6p_focal_sat:make_problem --comb 10,11,19
+The .m file has every coefficient expanded in the data (for the MATLAB
+pipeline).  make_problem() keeps the structure instead: the coefficients of
+E_ij are intermediate symbols and the new equations are short bilinear
+expressions in them, which makes the generated solver much cheaper.
 """
 import os
 
@@ -53,6 +58,38 @@ def derive():
         assert sympy.degree(g, a3) <= 1, 'a3^2 term did not cancel'
     orig = [E[i, j] for i in range(3) for j in range(3)] + [det]
     return [a1, a2, a3], list(c), orig, new
+
+
+def make_problem():
+    """Structured Problem: E_ij coefficients as intermediate (aux) symbols."""
+    from .problem import Problem
+    a1, a2, a3 = sympy.symbols('a1:4')
+    vars_ = [a1, a2, a3]
+    c = sympy.symbols('c1:28')
+    M = lambda k: sympy.Matrix(3, 3, list(c[9 * k: 9 * k + 9]))
+    F = M(0) + a1 * M(1) + a2 * M(2)
+    Q = sympy.diag(1, 1, a3)
+    E = (2 * F * Q * F.T * Q * F - (F * Q * F.T * Q).trace() * F).applyfunc(sympy.expand)
+    aux, Es = [], sympy.zeros(3, 3)
+    for i in range(3):
+        for j in range(3):
+            P = sympy.Poly(E[i, j], *vars_)
+            acc = 0
+            for k, (mon, coef) in enumerate(P.terms()):
+                s = sympy.Symbol(f'e{i + 1}{j + 1}_{k + 1}')
+                aux.append((s, coef))
+                acc += s * sympy.prod([v ** p for v, p in zip(vars_, mon)])
+            Es[i, j] = acc
+    new = []
+    for i in range(2):
+        new.append(F[2, 2] * Es[i, 2] - F[i, 2] * Es[2, 2])
+        new.append(F[2, 2] * Es[2, i] - F[2, i] * Es[2, 2])
+    for i in range(2):
+        for j in range(2):
+            new.append(F[2, 2] * Es[i, j] - 2 * F[2, j] * Es[i, 2] + F[i, j] * Es[2, 2])
+    eqs = [Es[i, j] for i in range(3) for j in range(3)] + [sympy.expand(F.det())] + [sympy.expand(g) for g in new]
+    cfg = {'hidden_var': 2, 'poly_comb': [10, 11, 19], 'size_of_combs': [], 'rows_to_reduce': 0}
+    return Problem('problem_relpose_6p_focal_sat', vars_, list(c), eqs, cfg, aux)
 
 
 def write_problem(path):

@@ -59,7 +59,7 @@ def octave_accuracy(problem, folder, hidden_var, trials=30, seed=1, tol=1e-6):
     rng = np.random.default_rng(seed)
     data = rng.standard_normal((trials, len(problem.params)))
     sols, sec = run_octave_solver(folder, data)
-    f = sympy.lambdify(problem.vars + problem.params, problem.eqs, 'numpy')
+    f = problem.eqs_fn()
     h = hidden_var - 1
     order = [h] + [i for i in range(problem.n) if i != h]
     res, counts = [], []
@@ -70,7 +70,10 @@ def octave_accuracy(problem, folder, hidden_var, trials=30, seed=1, tol=1e-6):
             x[order] = v[:problem.n]
             if not np.all(np.isfinite(x)):
                 continue
-            r = np.max(np.abs(np.array(f(*x, *data[i]), dtype=complex))) / max(np.linalg.norm(x), 1e-300)
+            with np.errstate(all='ignore'):
+                r = np.max(np.abs(np.array(f(x, data[i]), dtype=complex))) / max(np.linalg.norm(x), 1e-300)
+            if not np.isfinite(r):
+                continue
             res.append(r)
             c += r < tol
         counts.append(c)

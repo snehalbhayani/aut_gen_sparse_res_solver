@@ -94,6 +94,76 @@ size cannot go lower. On `9pt2radial`, keeping a larger eigen basis than the
 minimum only removes one eliminated column per extra eigen column, so it never
 pays off.
 
+## Removing the spurious solutions of 6p focal
+
+The 3 extra eigenvalues of `relpose_6p_focal` are solutions at
+**a3 = infinity**. The `a3²` coefficient of the trace constraint is
+`W2 = F33·(2·f3·r3 − F33·F)`, where `f3` and `r3` are the third column and
+row of F. W2 = 0 together with det F = 0 means `F33 = 0` (a line) cut with a
+cubic, which gives exactly 3 points. The leading coefficients also satisfy
+syzygies, for i, j ∈ {1, 2}:
+
+    F33·W2_i3 − F_i3·W2_33 = 0
+    F33·W2_3j − F_3j·W2_33 = 0
+    F33·W2_ij − 2·F_3j·W2_i3 + F_ij·W2_33 = 0
+
+So the same combinations of the `E_ij` have `a3`-degree 1. They vanish at every
+real solution but not at the points at infinity: a **symbolic saturation**
+whose coefficients are explicit polynomials in the data, with no online
+elimination step. `symgen/derive_6p_focal_sat.py` writes
+`problems/problem_relpose_6p_focal_sat.m`, in which the 8 new equations are
+added as eqs 11-18.
+
+The new equations are products of existing ones, so fully expanding them
+in the data doubles the coefficient code. A `Problem` can instead carry
+intermediate coefficient symbols (`aux`). `make_problem()` keeps the `E_ij`
+coefficients as intermediates, and the generated solver computes each new
+coefficient as a short sum of products of numbers it already has.
+
+```bash
+python3 -m symgen symgen.derive_6p_focal_sat:make_problem --comb 10,11,19 --hidden 2
+```
+
+Octave, 500 instances, residuals measured on the original 10 equations:
+
+| 6p focal solver | template (elim + eigen) | eigenvalues returned | median log10 residual | correct solutions | ms per solve |
+|---|---|---|---|---|---|
+| Maple (repo) | 12 + 18 | 18 (3 spurious) | -12.00 | 14.82 | 8.65 |
+| symgen, original equations | 12 + 18 | 18 (3 spurious) | -12.12 | 14.99 | 3.57 |
+| symgen, saturated, expanded | 25 + 15 | **15** | -11.00 | 14.80 | 7.15 |
+| symgen, saturated, structured | 25 + 15 | **15** | -11.01 | 14.80 | 3.87 |
+
+The eigenproblem now has exactly the 15 geometric solutions, and every hidden
+variable works (the original equations had no valid template with `a3`
+hidden). The cost: a 25×25 elimination instead of 12×12, and about one digit
+less accuracy. In pure linear algebra the two are close: 77 µs for 25+15
+against 70 µs for 12+18.
+
+## Eigenvalue problem size vs. the matrix to invert
+
+`eigen_target` (CLI `--eigen-target N`) stops the eigen basis reduction early.
+Each l-row kept makes the eigenvalue problem one larger and A2 one smaller.
+`--fastest` sweeps this whole family, measures the LAPACK time of each
+template's linear algebra (`A2\A1` + `eig`) and keeps the fastest template
+that still finds all the solutions.
+
+Measured on every problem in the repo (Octave/LAPACK, µs for `A2\A1` + `eig`):
+
+| problem | minimal eigen size | | larger eigen sizes | | |
+|---|---|---|---|---|---|
+| 9pt2radial | 27 + 90: **436** | 33 + 84: 520 | 39 + 78: 623 | 57 + 60: 1185 | 80 + 40: 2953 |
+| opt_pnp_hesch | 27 + 87: **416** | 34 + 77: 660 | 41 + 70: 739 | 55 + 53: 1018 | 84 + 33: 3217 |
+| 7p_fr_1s | 19 + 22: **90** | 21 + 20: 93 | 23 + 18: 115 | 26 + 15: 162 | |
+
+**The minimal eigenvalue problem was the fastest in every case.** The
+nonsymmetric eigensolver (Hessenberg QR) costs about 20–30× more per n³ than
+the LU solve. With this kind of template, each extra eigen column removes only
+one column of A2. Trading would pay only if one extra eigen column removed
+about 20 eliminated columns. Larger eigen bases also return spurious
+eigenpairs, which hurt accuracy. On `opt_pnp_hesch` they do recover a few more
+of the 27 true solutions (about 26.9 against 25.4). The sweep is kept for
+problems where the elimination dwarfs the eigenvalue problem.
+
 ## Limits / not yet done
 
 - `cfg.noOfRowsToReduce > 0` (pre-elimination of the input equations) is

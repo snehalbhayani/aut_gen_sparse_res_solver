@@ -41,9 +41,9 @@ class NumericSolver:
     def __init__(self, problem, T):
         self.pb, self.L = problem, SolverLayout(problem, T)
         self.h = T.h
-        self._coef = sympy.lambdify(problem.params, [problem.coeffs[c] for c in self.L.used_coeffs], 'numpy')
+        self._coef = problem.coeff_fn(self.L.used_coeffs)
         self._cpos = {c: i for i, c in enumerate(self.L.used_coeffs)}
-        self._eqs = sympy.lambdify(problem.vars + problem.params, problem.eqs, 'numpy')
+        self._eqs = problem.eqs_fn()
 
     def solve(self, data):
         L = self.L
@@ -77,7 +77,7 @@ class NumericSolver:
     def residuals(self, sols, data):
         out = []
         for x in sols:
-            r = np.abs(np.array(self._eqs(*x, *data), dtype=complex))
+            r = np.abs(np.array(self._eqs(x, data), dtype=complex))
             out.append(np.max(r) / max(np.linalg.norm(x), 1e-300))
         return np.array(out)
 
@@ -94,6 +94,7 @@ def evaluate(problem, T, trials=50, seed=1, tol=1e-6):
         allres.append(res)
         counts.append(int(np.sum(res < tol)))
     allres = np.concatenate(allres)
+    allres = allres[np.isfinite(allres)]
     return {
         'median_log10_residual': float(np.median(np.log10(allres + 1e-300))),
         'mean_log10_residual': float(np.mean(np.log10(allres + 1e-300))),

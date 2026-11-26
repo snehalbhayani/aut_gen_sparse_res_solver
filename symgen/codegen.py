@@ -30,10 +30,36 @@ def matlab_solver(problem, T, funcname='solver', cse=True):
     # data symbols -> data(i)
     sub = {p: sympy.Symbol(f'data({i + 1})') for i, p in enumerate(problem.params)}
     exprs = [problem.coeffs[c].xreplace(sub) for c in L.used_coeffs]
+    # intermediate coefficients (only those actually needed), computed first
+    needed = set().union(*[e.free_symbols for e in exprs]) if exprs else set()
+    aux = []
+    for s, e in reversed(problem.aux):
+        if s in needed:
+            aux.append((s, e.xreplace(sub)))
+            needed |= e.free_symbols
+    aux.reverse()
     if cse:
-        reps, exprs = sympy.cse(exprs, symbols=sympy.numbered_symbols('s'), optimizations='basic')
-        for s, e in reps:
-            lines.append(f'{s} = {octave_code(e)};')
+        reps, red = sympy.cse([e for _, e in aux] + exprs, symbols=sympy.numbered_symbols('s'),
+                              optimizations='basic')
+        aux = [(s, e) for (s, _), e in zip(aux, red[:len(aux)])]
+        exprs = red[len(aux):]
+        stmts = list(reps) + aux
+    else:
+        stmts = aux
+    # emit definitions in dependency order (CSE temporaries and aux refer to each other)
+    defined = {s for s, _ in stmts}
+    done, pending = set(), list(stmts)
+    while pending:
+        rest = []
+        for s, e in pending:
+            if (e.free_symbols & defined) <= done:
+                lines.append(f'{s} = {octave_code(e)};')
+                done.add(s)
+            else:
+                rest.append((s, e))
+        if len(rest) == len(pending):
+            raise RuntimeError('cyclic coefficient definitions')
+        pending = rest
     lines.append(f'k = zeros({len(exprs)},1);')
     for i, e in enumerate(exprs):
         lines.append(f'k({i + 1}) = {octave_code(e)};')
