@@ -98,9 +98,17 @@ non-genericity.**
 ## Plan
 
 1. ~~NP-hardness of the flat linear case~~: done (Theorem C1).
-2. **Lifting lemma.** For affine-linear systems, do non-flat templates (rows x^t f) ever
-   give smaller |G|? If not, Theorem C1 holds for unrestricted MIN-ELIM. This is
+2. **Lifting lemma (open).** For affine-linear systems, do non-flat templates (rows x^t f)
+   ever give smaller |G|? If not, Theorem C1 holds for unrestricted MIN-ELIM. This is
    subtle: multipliers containing h let gadget rows reach h-monomials.
+   `research/convexity/lifting_test.py` ran symgen's exact greedy search over column sets
+   of degree ≤ 2 on 6 gadget instances. It never beat the flat optimum, but it is
+   inconclusive: on 4 of the 6 the greedy search did not even reach the flat optimum
+   (e.g. 8 against 6).
+
+   That shortfall is itself a data point: **symgen's deterministic greedy reduction is
+   measurably suboptimal** on the instances where the problem is NP-hard. This argues for
+   exact or ILP-based search on small problems and approximation guarantees on large ones.
 3. **Approximation.** The cost has an additive offset of 1 + |X|, so set cover's ln n
    inapproximability does not transfer directly. A padded or gap-preserving variant is
    needed.

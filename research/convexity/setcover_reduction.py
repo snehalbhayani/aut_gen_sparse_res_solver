@@ -52,15 +52,16 @@ def min_cover(X, sets):
                 return k
 
 
-rng = random.Random(0)
-ok = 0
-for trial in range(40):
-    nX, nS = rng.randint(2, 4), rng.randint(2, 5)
-    regime = trial % 2
-    coeffs = (lambda r: Fraction(r.randint(1, 3))) if regime == 0 else (lambda r: Fraction(r.randint(1, 10**6), r.randint(1, 10**6)))
-    X, sets, eqs = instance(nX, nS, rng, coeffs)
-    m = min_flat(X, sets, eqs)
-    c = min_cover(X, sets)
-    assert m == 1 + nX + c, (X, sets, m, c)
-    ok += 1
-print(f'{ok}/40 random instances: min flat |G| = 1 + |X| + min set cover  (small integer and random rational coefficients)')
+if __name__ == '__main__':
+    rng = random.Random(0)
+    ok = 0
+    for trial in range(40):
+        nX, nS = rng.randint(2, 4), rng.randint(2, 5)
+        regime = trial % 2
+        coeffs = (lambda r: Fraction(r.randint(1, 3))) if regime == 0 else (lambda r: Fraction(r.randint(1, 10**6), r.randint(1, 10**6)))
+        X, sets, eqs = instance(nX, nS, rng, coeffs)
+        m = min_flat(X, sets, eqs)
+        c = min_cover(X, sets)
+        assert m == 1 + nX + c, (X, sets, m, c)
+        ok += 1
+    print(f'{ok}/40 random instances: min flat |G| = 1 + |X| + min set cover  (small integer and random rational coefficients)')
