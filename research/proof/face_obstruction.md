@@ -3,7 +3,10 @@
 The two theorems below hold over **any field K**, for **arbitrary coefficients**
 (non-generic systems included) and for **any finite monomial set**, convex or not.
 They prove the "necessary" half of the face test in `research/convexity`.
-The Lean 4 formalisation is in `research/lean/FaceObstruction.lean`.
+The key lemma and both theorems are **machine-checked in Lean 4 + Mathlib**:
+`research/lean/FaceObstruction.lean` (`face_kernel`, `no_valid_template`,
+`spurious_eigenpair`; no `sorry`). The corollary, the alternative-partition
+remark and the orbit counting are not formalised.
 
 ## Setting
 

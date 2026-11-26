@@ -1,10 +1,12 @@
-# Lean formalisation (not yet compiled)
+# Lean formalisation (machine-checked)
 
 `FaceObstruction.lean` formalises the key lemma and Theorems 1–2 of
 `../proof/face_obstruction.md`.
 
-Lean could not be installed in the session where this was written, so the file
-has **not been checked by Lean yet**. To build it:
+It builds with Lean 4.19.0 and Mathlib v4.19.0. `#print axioms` for
+`face_kernel`, `no_valid_template` and `spurious_eigenpair` reports only the
+standard axioms propext, Classical.choice and Quot.sound, so there is no
+`sorry`. To rebuild:
 
 ```bash
 cd research/lean
@@ -12,6 +14,4 @@ lake exe cache get
 lake build
 ```
 
-The first command downloads the prebuilt Mathlib cache. If the pinned version
-(`lean-toolchain`, `lakefile.toml`, v4.19.0) is unavailable, bump both files to
-a current Mathlib release tag. Expect a few small API-name fixes.
+The first command downloads the prebuilt Mathlib cache (about 5.6 GB unpacked).

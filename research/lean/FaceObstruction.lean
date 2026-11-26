@@ -2,9 +2,9 @@
 Face obstruction theorem for sparse-resultant (extra polynomial) templates.
 See research/proof/face_obstruction.md for the informal proof.
 
-STATUS: written against Mathlib but NOT YET COMPILED. Lean could not be
-installed in the session where this was written. Expect small API fixes when
-building with `lake build`.
+STATUS: machine-checked with Lean 4.19.0 + Mathlib (v4.19.0) via `lake build`.
+`#print axioms` for all three theorems reports only propext, Classical.choice
+and Quot.sound (no sorry).
 
 Everything is over an arbitrary field `K`, with arbitrary coefficients (no
 genericity), for an arbitrary finite column set `C` (no convexity).
