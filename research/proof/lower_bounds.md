@@ -48,58 +48,59 @@ block (`research/convexity/min_elim_2d.py`). So for (1a) the bound is exact on t
 example. The optimal template is **not** a Minkowski sum: it is smaller than
 NP(f1)+NP(f2) = [0,4]×[0,5].
 
-## Theorem P1b (row-counting / deficiency bound) — proved
+## P1b (deficiency bound): RETRACTED as stated
 
-For any valid template, rank M ≥ |G|, and the rank is at most the number of rows,
-which is at most Σ_i |C ⊖ S_i| with C ⊖ S = {t : t + S ⊆ C}. Hence
+An earlier version claimed |G| ≥ s*(N_min) − N_min from the inequality
+δ(C) := |C| − Σ_i |C ⊖ S_i| ≤ |E|. The inequality is true, since it is just
+rank ≥ |G| with rank ≤ #rows ≤ Σ_i |C ⊖ S_i|. But **it gives no lower bound**:
+every small column set (|C| ≤ N) satisfies it trivially. The "first box with
+δ ≤ 9 has 20 points" came from scanning only boxes that already contained the Newton
+polytopes. Exhaustive enumeration over all Young diagrams gives s* = 1
+(`research/convexity/young_bound.py`).
 
-    δ(C) := |C| − Σ_i |C ⊖ S_i| ≤ |E|.
+What survives:
 
-With |E| = N_min this forces |C| ≥ s*(N_min), where
-s*(N) = min{ |C| : δ(C) ≤ N }, and so
+- **Compression lemma (correct, kept as a tool).** If every support S_i is a down-set
+  (e.g. a full box or a full simplex), pushing the points of C down in each column
+  (or left in each row) never decreases |C ⊖ S_i|.
+  - Before compression, a column with n points fits at most n − s + 1 vertical segments
+    of length s.
+  - After compression, the fitting positions in consecutive columns are nested initial
+    segments, so their intersection is as large as possible.
 
-    |G| ≥ s*(N_min) − N_min.
+  Hence extremal problems about fitting translates reduce to Young diagrams (down-sets
+  in N^n).
+- **Status of (1b) on the thesis example:** upper bound |G| = 11 (achieved, eigen size 9,
+  box [0,3]×[0,4]); lower bound |G| ≥ 5 (P1a). The gap is open.
 
-**Thesis example.** N_min = 9 (8 real solutions + 1 ghost).
+**What a correct (1b) bound must use** (constraints the counting argument ignores):
 
-- Among boxes, δ(C) ≤ 9 first holds for [0,3]×[0,4]: 20 points, with 2 + 9 = 11
-  fitting rows. So s*_box = 20 and the bound is |G| ≥ 11.
-- The best template found has |E| = 9 and **|G| = 11** on exactly that box
-  (`min_elim_2d_mineig.py`).
+1. The equations that appear in the rows must have finitely many torus solutions, at most
+   |E| distinct x_h-values among them. Otherwise the kernel contains a continuum of point
+   vectors, which contradicts the eigenvector argument of Theorem 2. In the thesis
+   example both f1 and f2 must be used, so C contains a translate of the 4×4 box NP(f1).
+2. The face certificates of P1a hold simultaneously for every w with w_h > 0.
+3. E + e_h ⊆ C, and the point vectors stay independent on E.
 
-So the bound is tight, **provided boxes minimise the deficiency δ among all sets of
-the same size**.
-
-**Conjecture D (a quantitative form of the thesis's §4.2.1 hypothesis).** For
-supports whose Newton polytopes are compatible with Q, the minimal deficiency among
-column sets of a given size is attained, up to a lower-order term, by lattice points
-of shapes compatible with the supports (Minkowski-type shapes).
-
-Proving Conjecture D turns P1b into an explicit, shape-independent lower bound. The
-natural tools are the discrete Brunn–Minkowski inequalities:
-
-- (C ⊖ S) + S ⊆ C gives |C| ≥ |(C ⊖ S) + S|;
-- this can then be bounded below via Gardner–Gronchi (2001) or Ruzsa-type
-  |A+B| ≥ |A| + n|B| − n(n+1)/2.
-
-The 2-D case should be provable this way.
+Combining 1–3 with compression into a computable bound (an integer-programming
+relaxation over down-sets) is the next step for (1b).
 
 ## What this says about the thesis
 
-The thesis's "convex sets fit more translates" (condition C1) is exactly the
-statement that Minkowski-type shapes minimise the deficiency δ. Section 2 of
-`research/convexity/README.md` showed this is not what decides *feasibility*;
-ghosts decide that. It **is** what decides the *minimal elimination size at minimal
-eigen size* (P1b). So the thesis intuition has a precise and provable home.
+The thesis's "convex sets fit more translates" (condition C1) is a statement about
+the counts |C ⊖ S_i|. Section 2 of `research/convexity/README.md` showed that it is
+not what decides *feasibility*; ghosts decide that. The (retracted) P1b shows that
+row counts alone do not bound the elimination size either. Whether C1 plays a role in
+a correct (1b) bound is open.
 
 ## Next steps
 
-1. Prove Conjecture D in 2-D (lattice polygons; discrete Brunn–Minkowski) and test it
-   against exhaustive search on small instances.
+1. Derive a correct (1b) bound from constraints 1–3 above, using compression to reduce
+   to down-sets, and test it against exhaustive search on small instances.
 2. Compute the P1a and P1b bounds for the benchmark problems (6pt focal, 9pt radial,
    opt PnP, 7pt) and compare with the best published templates (11×26, 73×97, 87×114,
    34×56). For faces of dimension ≥ 2, λ_w needs a higher-dimensional
    certificate-size bound. Counting is weak when there are many equations (6pt focal
    has 10).
 3. Lean: P1a is a short extension of `face_kernel`'s restriction argument plus
-   `EigenSize.finrank_ker_le`. P1b is a rank ≤ #rows inequality. Both are within reach.
+   `EigenSize.finrank_ker_le`.
