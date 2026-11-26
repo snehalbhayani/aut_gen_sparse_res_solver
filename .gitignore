@@ -1,2 +1,4 @@
-eqs__pycache__/
+eqs
+__pycache__/
 *.pyc
+research/lean/.lake/
