@@ -207,11 +207,45 @@ non-genericity.**
    The bookkeeping (an injective map into G across levels, and the rank conditions on the
    restricted blocks) still has to be written out and checked.
 
-3. **Approximation.** The cost has an additive offset of 1 + |X|, so set cover's ln n
-   inapproximability does not transfer directly. A padded or gap-preserving variant is
-   needed.
-4. **Genuine minimal problems.** Hardness for systems with N > 1 and the eigen size fixed
-   at N (e.g. by tensoring the gadget with a univariate factor in a new variable).
+3. **Approximation (open; analysis).** The optimum is 1 + |X| + OPT_SC. The additive
+   |X| swamps any multiplicative gap in OPT_SC, so set cover's (1 − ε) ln n
+   inapproximability (Dinur–Steurer 2014) does not transfer.
+
+   The natural amplification gives each set a private chain y_S^(1) – … – y_S^(w) of
+   positive-gain rows, with the only unbalanced cycle (the double edge) at the end of the
+   chain. Element edges get gain 1, so every cycle through shared elements is balanced.
+   The sign-trick lemma still applies, since the graph is bipartite with positive gains
+   and X lies in one colour class.
+
+   **Loophole:** Lemma L only needs *one* unbalanced cycle per connected component. Sets
+   that share elements can share one paid chain, so the cost becomes
+   #sets + w · #components, not w · #sets.
+
+   Candidate fixes:
+   - private element copies per set, linked to the shared element in a way that keeps
+     components separate;
+   - reducing from a problem whose cost is naturally per component, such as a group
+     Steiner variant.
+
+   Until one works, MIN-ELIM is known to be NP-hard but **not** known to be hard to
+   approximate.
+4. **Genuine minimal problems (N > 1; analysis).** Theorem C2 has N = 1, so its eigen
+   size is minimal.
+
+   **Variant A (minimal eigen size = distinct x_h-values).** Add p(z) of degree N and set
+   f0 = h − Σ x − z. Then h takes N distinct values. Lemma L (general polynomial form,
+   machine-checked) still forces f0, p and a covering set of unbalanced gadget components
+   to be used. So every template has |G| ≥ #used equations ≥ 2 + |X| + OPT. That is a valid
+   lower bound, and NP-hardness follows if a matching upper bound holds.
+
+   **Upper bound (open).** A template whose eigen basis is {1, z, …, z^(N−1)} must reduce
+   h · z^j for each j < N, which suggests a cost of about N · (1 + |X| + OPT). The
+   lower-bound argument counts used *equations*, not their multiples per z-level. So the
+   bounds match only if a "per-level" version of Lemma L holds.
+
+   Next: either prove the per-level lemma (each z^j level needs its own covering rows), or
+   find a template that reuses rows across levels. Then check small cases exhaustively, as
+   in P1b′.
 5. ~~**Lean**~~: **done** for the algebraic core. See `research/lean/Hardness.lean`:
    - `min_elim_lower_bound` (every template ≥ 1 + |X| + |sets used|, with a cover);
    - `cover_spans` (achievability);

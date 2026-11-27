@@ -70,8 +70,8 @@ What survives:
 
   Hence extremal problems about fitting translates reduce to Young diagrams (down-sets
   in N^n).
-- **Status of (1b) on the thesis example:** upper bound |G| = 11 (achieved, eigen size 9,
-  box [0,3]×[0,4]); lower bound |G| ≥ 5 (P1a). The gap is open.
+- **(1b) on the thesis example is now solved: min |G| = 11** at eigen size 9 (computer-assisted
+  proof, see below).
 
 **What a correct (1b) bound must use** (constraints the counting argument ignores):
 
@@ -85,6 +85,40 @@ What survives:
 Combining 1–3 with compression into a computable bound (an integer-programming
 relaxation over down-sets) is the next step for (1b).
 
+## Theorem P1b′ (exact optimum for the thesis example) — proved, computer-assisted
+
+**Theorem.** For the Ex. 4.2.1 instance with x1 hidden, every valid template with eigen
+size 9 (the minimum: 8 solutions + 1 ghost) has **|G| ≥ 11**, and |G| = 11 is achieved on
+the box [0,3]×[0,4]. So 11 is the optimal matrix-inverse size.
+
+*Proof.*
+
+1. **Both equations are used.** By Lemma L (`complexity.md`, machine-checked as
+   `Hardness.LemmaL.card_le`), x1 takes ≤ 9 values on V(U_eq). V(f1) and V(f2) alone are
+   curves, so both f1 and f2 occur in the rows. Hence C contains a translate of
+   supp f1 = the full 4×4 box. Templates are translation invariant, so take it to be
+   [0,3]².
+2. **Locate the right edge.** By P1a, the rightmost column of C (x1 = D) is eliminated and
+   contains ≥ 5 points (Sylvester count 3 + 2).
+   - If D > 3, that column is disjoint from the box, so |C| ≥ 21 and |G| = |C| − 9 ≥ 12.
+   - So D = 3, and the column holds ≥ 1 point outside the box. Already |C| ≥ 17 and |G| ≥ 8.
+3. **Reduce to a finite search.** |G| ≤ 10 means |C| ≤ 19, i.e. at most 3 points outside the
+   box, all with x1 ≤ 3.
+   - Any fitting row that touches an extra point has most of its support in the box (an
+     f1 row covers ≥ 13 box points, an f2 row ≥ 3). So extra points that some row reaches
+     lie in [−1,3]×[−2,5].
+   - An extra point that no row reaches is a zero column. A chain of such points must end
+     at a non-shiftable, hence eliminated, column, which is infeasible.
+   - So every candidate lies in the region [−4,3]×[−4,7].
+4. **Exhaust.** `research/convexity/min_elim_1b_exact.py` checks all 23,132 such column
+   sets with **exact rational ranks**. A set is accepted iff its corank is ≤ 9 and its
+   boundary columns are eliminable. This is necessary for any valid eigen-size-9 template
+   on C, using all fitting rows and the matroid step. None passes. ∎
+
+So on this example the thesis-style box template is **optimal** for the inverse size at
+minimal eigen size. It is not the Minkowski sum: [0,3]×[0,4] is smaller than
+NP(f1)+NP(f2) = [0,4]×[0,5].
+
 ## What this says about the thesis
 
 The thesis's "convex sets fit more translates" (condition C1) is a statement about
@@ -95,8 +129,9 @@ a correct (1b) bound is open.
 
 ## Next steps
 
-1. Derive a correct (1b) bound from constraints 1–3 above, using compression to reduce
-   to down-sets, and test it against exhaustive search on small instances.
+1. Turn the proof pattern of P1b′ into a general bound: Lemma L forces the supports of the
+   equations needed for finiteness, P1a gives the face layers, and a finite exact search
+   covers the rest. Then apply it to the 3-variable benchmarks.
 2. Compute the P1a and P1b bounds for the benchmark problems (6pt focal, 9pt radial,
    opt PnP, 7pt) and compare with the best published templates (11×26, 73×97, 87×114,
    34×56). For faces of dimension ≥ 2, λ_w needs a higher-dimensional
