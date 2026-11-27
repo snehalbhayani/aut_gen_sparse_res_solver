@@ -10,6 +10,23 @@
   - `H_sep` (**R1/R2**, independence of the point vectors on the shiftable columns;
     elementary for large dilations kQ, and the next milestone).
 
+- `Hardness.lean`: Theorem C2 of `../proof/complexity.md` (NP-hardness of the
+  minimal elimination template), its algebraic core:
+  - `gadget_count`: the sign-trick lemma. Positive-gain gadget rows whose span contains
+    Σ x span every variable they touch.
+  - `LemmaL.card_le`: Lemma L for arbitrary polynomial templates. N torus zeros of the
+    used rows with distinct x_h force N ≤ |E| (Vandermonde argument).
+  - `LemmaL.determines_h`: for affine-linear equations, the used equations determine x_h.
+  - `squarify`: every valid template has a valid sub-template with exactly |C \ E| rows.
+  - `min_elim_lower_bound`: for the SET COVER gadget system, every valid template has
+    |C \ E| ≥ 1 + |X| + |set variables used|, and the used gadgets cover X.
+  - `cover_spans`: achievability. A cover with double edges spans every variable of the
+    flat template, so the flat template is valid.
+
+  Not formalised: the encoding of the flat template as a `FaceObstruction` template
+  (routine), and the complexity-theoretic wrapper (NP membership and the Karp reduction).
+  Mathlib has no framework for that.
+
 ## Formalisation status of Theorem 3
 
 | piece | status |

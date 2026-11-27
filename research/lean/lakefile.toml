@@ -8,4 +8,4 @@ rev = "v4.19.0"
 
 [[lean_lib]]
 name = "FaceObstruction"
-roots = ["FaceObstruction", "EigenSize", "Theorem3"]
+roots = ["FaceObstruction", "EigenSize", "Theorem3", "Hardness"]

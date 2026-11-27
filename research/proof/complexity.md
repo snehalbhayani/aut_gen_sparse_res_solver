@@ -212,5 +212,12 @@ non-genericity.**
    needed.
 4. **Genuine minimal problems.** Hardness for systems with N > 1 and the eigen size fixed
    at N (e.g. by tensoring the gadget with a univariate factor in a new variable).
-5. **Lean.** The proof is finite linear algebra plus the frame-matroid rank formula; it is
-   formalisable with the existing set-up.
+5. ~~**Lean**~~: **done** for the algebraic core. See `research/lean/Hardness.lean`:
+   - `min_elim_lower_bound` (every template ≥ 1 + |X| + |sets used|, with a cover);
+   - `cover_spans` (achievability);
+   - Lemma L (`card_le`, `determines_h`);
+   - `squarify`.
+
+   The proof is also simpler than on paper: the sign-trick lemma replaces the
+   frame-matroid / connected-components argument. Not formalised: the template encoding
+   of the flat optimum, and the NP-membership / Karp wrapper.
