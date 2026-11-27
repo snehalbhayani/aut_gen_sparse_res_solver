@@ -21,6 +21,10 @@ Scripts (exact over GF(p) or Q unless noted, using `symgen`):
 | `min_elim_1b_exact.py` | Theorem P1b′: exhaustive exact-rational search, Ex. 4.2.1 at eigen size 9 |
 | `support_bound.py` | Lemma-L anchor bound on all benchmarks (Jacobian certificate at a numeric solution) |
 | `min_elim_7pt_exact.py` | Theorem P1d: counting search showing symgen's 7pt template is optimal |
+| `face_layers.py` | initial systems in_w(F) for w_h > 0: zero-free subsets and face anchors (P1e) |
+| `layer_bound_9pt.py`, `layer_search_9pt.py`, `layer_search.py` | Theorem P1e: down-set counting and syzygy-aware searches for complete face layers (9pt λ_e3 ≥ 29, so |G| ≥ 40) |
+| `layer_bound_pnp.py` | Theorem P1e for opt PnP: λ_(1,1,1) = 32 exactly, so |G| ≥ 32 |
+| `random_reduce.py` | randomized greedy template reduction (upper bounds; 9pt stays at 90) |
 | `setcover_reduction.py`, `lifting_test.py`, `lifting_exhaustive.py`, `c3_check.py` | Part 2: the SET COVER gadget systems (NP-hardness) |
 | `apx_check.py` | Theorem C4: gadget systems of cubic graphs, min |G| = 1 + |X| + vertex cover |
 

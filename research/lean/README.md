@@ -1,6 +1,10 @@
 # Lean formalisation (machine-checked)
 
 - `FaceObstruction.lean`: the key lemma and Theorems 1–2 of `../proof/face_obstruction.md`.
+- `TopLayer.lean`: **Theorem P1a** of `../proof/lower_bounds.md`. For a valid template and a
+  weight with w_h > 0, the top layer L lies in G (`layer_disjoint`). Row entries on L come
+  from the initial forms in_w (`layer_entry_initial`). The rows meeting L are injective on
+  K^L, so at least |L| rows meet it (`top_layer_card_le`). This is the input of P1b′ and P1e.
 - `EigenSize.lean`: Step 3 of `../proof/exact_count.md`. For a feasible template, the
   eigen-basis reduction reaches exactly the corank, and every valid template has
   an eigen basis at least that large.

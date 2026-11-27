@@ -35,6 +35,11 @@ Hence |G| ≥ |L| ≥ λ_w. ∎
 
 If in_w(F) has a torus solution, no L is complete. That is Theorem 1 again.
 
+**Lean.** Machine-checked in `research/lean/TopLayer.lean`:
+- `layer_disjoint`: L ⊆ G;
+- `layer_entry_initial`: the entries on L are the coefficients of in_w;
+- `top_layer_card_le`: M[:, L] is injective, so at least |L| rows meet L.
+
 **Two variables (exact).** The top layer lies on a line, and in_w(f_i) becomes a
 univariate polynomial g_i of degree d_i in the edge coordinate. Fitting rows satisfy
 |L ⊖ S_i| ≤ |L| − d_i (1-D Brunn–Minkowski). A complete L therefore needs
@@ -194,6 +199,75 @@ therefore **optimal**.
 Steps 1 and 3 are pure counting. The data enter only through "these equation sets are infinite"
 and "the 19 a3-values are distinct", both generic conditions.
 
+## Theorem P1e (face-layer bounds for 9pt and opt PnP) — proved, computer-assisted
+
+P1a says that for every w with w_h > 0, the top w-layer L of C lies in G and is *complete*
+for in_w(F): the rows x^t in_w(f_i) inside L have rank |L|. The following necessary conditions
+hold for every choice of coefficients, provided the coefficients of in_w(F) are non-zero.
+`research/convexity/layer_search.py` tests all of them.
+
+- **(a) No empty columns.** Every point of L lies in a row inside L.
+- **(b) Face anchor.** Lemma L for the face system: the in_w-equations used in L have no
+  common torus zero, so L contains a translate of one of their supports.
+- **(c) Rank bound from syzygies.** rank ≤ #rows − #syz. Here #syz counts Koszul syzygies
+  in f_j · (x^t in f_i) − in f_i · (x^t in f_j), for i < j and t + S_i′ + S_j′ ⊆ L, that have
+  distinct largest rows (i, t + max S_j′). Such relations are triangular, hence independent.
+- **(d) P1a inside the layer.** For every direction v, the v-top part L′ of L is met by at
+  least |L′| rows of L.
+
+A minimal complete L is *row-connected*: its row-disjoint pieces are complete on their own. So
+it suffices to grow L from the face anchor by adding rows that meet it. The search processes the
+sets in increasing size and stops at the first size where some set passes.
+
+**Combination with the global anchor.** Lemma L puts a translate A of supp f_a inside C. The top
+layer L either misses A or meets it exactly in A's top face. Hence
+
+    |C| ≥ |A| + λ_w − |face_w(supp f_a)|,    where λ_w is the least |L| passing (a)–(d).
+
+**9pt two radial (a3 hidden).**
+
+- Take w = e3. In coordinates (a1, a2, a4) the four initial supports are down-sets:
+  - S1′ = S2′ = {a1 + a2 ≤ 1, a1 + a2 + a4 ≤ 2}, with 7 points each;
+  - S3′ = the unit simplex, with 4 points;
+  - S4′ = {a1 + a2 + a4 ≤ 3, a4 ≤ 2}, with 19 points.
+- **(b).** No proper subset of in_{e3}(F) is free of torus zeros. This was checked with a
+  Gröbner count at a random instance; the three-equation subsets have positive mixed volume.
+  So L contains a translate of S4′.
+- **Search.** No row-connected L with |L| ≤ 28 passes (a)–(c), so λ_{e3} ≥ 29.
+- **Global anchor.** Every proper subset of F is certified infinite (`support_bound.py`), so f4
+  is used and A is a translate of S4: 57 points, with a top face of 19.
+- **Conclusion.** |C| ≥ 57 + 29 − 19 = 67, so **|G| ≥ 40** at eigen size 27, up from 30.
+  27 is the minimal eigen size: the 27 solver eigenvalues are pairwise distinct on 20 random
+  instances (smallest relative gap 1.6e-3), and Theorem 2 then gives |E| ≥ 27.
+- **Sanity check.** symgen's own top layer has 39 points and passes (a)–(c) with slack 3.
+- **The bound is not sharp.** The 29-point set that passes the count is *not* complete: its
+  exact GF(p) rank is too low. So λ_{e3} ∈ [29, 39], and an exact-rank search could raise the
+  bound further.
+
+**opt PnP (a3 hidden).**
+
+- Take w = (1, 1, 1). The initial forms are the cubic parts g_1, g_2, g_3 of the three
+  equations, all supported on the full degree-3 triangle T3 (10 points). The face anchor is
+  therefore automatic.
+- **Search.** No row-connected L with |L| ≤ 26 passes (a)–(d). So **|G| ≥ 27** for every valid
+  template, whatever its eigen size. The anchor bound gave nothing here.
+- **A sharper, generic condition (e).** Shift a complete L into N³. Its rows are then
+  polynomial multiples of the g_i, so every monomial of L lies in the ideal I = (g_1, g_2, g_3).
+  - At three random instances, the degree-6 Macaulay matrix has rank 27 of 28, and no degree-6
+    monomial lies in its row space. This is an open condition, so it holds for generic data, and
+    then I contains no monomial of degree ≤ 6.
+  - So the triangle bounding L must have side ≥ 7. The full side-7 triangle (36 points) is
+    complete: its exact rank is 36. The Hilbert function of the complete intersection is
+    1, 3, 6, 7, 6, 3, 1.
+- **Exact value λ_{(1,1,1)} = 32.** With (e) added, the size-ordered search finds no set of
+  ≤ 31 points. The first set passing is a 32-point hexagon, smaller than the 36-point triangle:
+  rows a1 = 0…6 holding a2 ∈ [0,5], [−2,4], [−2,3], [−2,2], [−2,1], [−2,0], {−1}. Its rows
+  have exact GF(p) rank 32 at two instances, and full rank at one instance implies full rank
+  for generic data. So λ_{(1,1,1)} = 32 exactly.
+- **Conclusion.** **|G| ≥ 32** for every valid opt PnP template, at any eigen size, for
+  generic data. Conditions (a)–(d) need only non-zero coefficients; (e) is the generic
+  condition certified above. symgen has |G| = 87.
+
 ## Status across the benchmarks (minimal eigen size, matrix-inverse size |G|)
 
 | problem (hidden) | N_min | anchor bound | proved optimum | symgen |G| |
@@ -201,19 +275,22 @@ and "the 19 a3-values are distinct", both generic conditions.
 | thesis Ex. 4.2.1 (x1) | 9 | 16 − 9 = 7 | **11** (P1b′) | 11 |
 | 6pt focal, `problems/` (a2) | 18 | 30 − 18 = **12** | **12** (P1c) | 12 |
 | 7pt focal+radial (a3) | 19 | 35 − 19 = 16 | **22** (P1d) | 22 |
-| 9pt two radial (a3) | 27 | 57 − 27 = 30 | open, in [30, 90] | 90 |
-| opt PnP (a3) | 27 | 20 − 27 < 0, vacuous | open, in [1, 87] | 87 |
+| 9pt two radial (a3) | 27 | 57 − 27 = 30 | open, in **[40, 90]** (P1e) | 90 |
+| opt PnP (a3) | 27 | 20 − 27 < 0, vacuous | open, in **[32, 87]** (P1e) | 87 |
 
-So the generator's templates are proven optimal on three of the five systems. The open cases fail
-for different reasons:
+So the generator's templates are proven optimal on three of the five systems. For the other two,
+P1e raised the lower bounds to 40 and 32. The anchor alone gave only 30 for 9pt and nothing
+for opt PnP.
 
-- **9pt.** The anchor S4 already passes (★) with slack 1 (31 rows on 57 columns). The true
-  obstruction is rank, not count: rows inside a large C have syzygies.
-- **opt PnP.** The three supports are equal (20 monomials each), smaller than N_min = 27.
-  Lemma L forces only one of them.
+**The randomized search did not improve symgen on 9pt.** `random_reduce.py` ran 150 randomized
+greedy reductions from every valid Minkowski start, with and without the recovery constraint.
+None got below |G| = 90.
 
-Both need a rank-aware bound. One option is to subtract the Koszul syzygies that fit in C. The
-other is to add the P1a face layers, which must lie in G for every w with w_h > 0.
+**What would close the gaps.** In both cases one face layer alone already costs 29–32 columns,
+yet symgen's templates are about three times larger. A bound that captures that difference has
+to use more than one layer, for example:
+- the second-highest layer, which must be complete modulo the shifts of E;
+- or the Koszul-corrected count (★) over all of C, not just the top layer.
 
 ## What this says about the thesis
 
