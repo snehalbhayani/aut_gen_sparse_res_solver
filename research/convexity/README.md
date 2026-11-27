@@ -7,13 +7,21 @@ lattice points of a convex set (the Minkowski sum of Newton polytopes) makes a
 feasible resultant matrix likely. Page numbers below are the thesis's printed
 page numbers.
 
-Scripts (all exact, over GF(p), using `symgen`):
+Scripts (exact over GF(p) or Q unless noted, using `symgen`):
 
 | file | what it does |
 |---|---|
 | `ex421.py` | reproduces the numbers of Ex. 4.2.1 (F+λ 8pt instance) |
 | `exp_shapes.py` | feasibility and eigen size for Minkowski, random convex and non-convex sets of equal size |
 | `face_test.py` | Bernstein face test: counts torus solutions of the initial systems in_w(F) on each facet of Q |
+| `k_sweep.py`, `check_spurious_6p.py` | Theorem 3 / Theorem 2 checks: corank under dilation kQ, and the 6pt focal ghost eigenvalues |
+| `counterexample.py` | a valid template from a non-convex column set (Minkowski sums are not necessary) |
+| `min_elim_2d.py`, `min_elim_2d_mineig.py` | Part 1 probes on Ex. 4.2.1: smallest |G| with eigen size free (P1a, tight at 5) and at eigen size 9 |
+| `young_bound.py` | Young-diagram enumeration that exposed the retracted P1b as vacuous |
+| `min_elim_1b_exact.py` | Theorem P1b′: exhaustive exact-rational search, Ex. 4.2.1 at eigen size 9 |
+| `support_bound.py` | Lemma-L anchor bound on all benchmarks (Jacobian certificate at a numeric solution) |
+| `min_elim_7pt_exact.py` | Theorem P1d: counting search showing symgen's 7pt template is optimal |
+| `setcover_reduction.py`, `lifting_test.py`, `lifting_exhaustive.py`, `c3_check.py` | Part 2: the SET COVER gadget systems (NP-hardness) |
 
 ## 1. Open questions in the thesis (complete list)
 

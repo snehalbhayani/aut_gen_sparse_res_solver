@@ -82,8 +82,8 @@ What survives:
 2. The face certificates of P1a hold simultaneously for every w with w_h > 0.
 3. E + e_h ⊆ C, and the point vectors stay independent on E.
 
-Combining 1–3 with compression into a computable bound (an integer-programming
-relaxation over down-sets) is the next step for (1b).
+Constraint 1 alone already repairs the counting bound. See "The repaired counting bound" below,
+which proves symgen optimal on 7pt (Theorem P1d).
 
 ## Theorem P1b′ (exact optimum for the thesis example) — proved, computer-assisted
 
@@ -119,6 +119,102 @@ So on this example the thesis-style box template is **optimal** for the inverse 
 minimal eigen size. It is not the Minkowski sum: [0,3]×[0,4] is smaller than
 NP(f1)+NP(f2) = [0,4]×[0,5].
 
+## Theorem P1c (6pt focal: symgen's template is optimal) — proved
+
+**Theorem.** For the 6pt focal relative-pose formulation in `problems/` (a2 hidden), every
+valid template with the minimal eigen size 18 has **|G| ≥ 12**. symgen's (and the Maple
+generator's) 12 + 18 template is therefore **optimal** in matrix-inverse size at minimal
+eigen size.
+
+*Proof.*
+
+1. **A trace equation is used.** By Lemma L (machine-checked as `Hardness.LemmaL.card_le`),
+   the equations used must leave only finitely many a2-values on their common torus zeros.
+   det F = 0 alone defines a surface, on which a2 takes infinitely many values. So at least
+   one of the 9 trace equations occurs in the rows.
+2. **So C is large.** Each trace equation has the same 30-monomial support, so C contains 30
+   distinct monomials and |C| ≥ 30.
+3. **Every valid template has |E| ≥ 18.** By Theorem 2 (`FaceObstruction.spurious_eigenpair`),
+   the 15 torus solutions and the 3 face solutions at a3 = ∞ (w = (0,0,1), w_2 = 0) give
+   eigenvectors of the solver matrix with eigenvalue a2. For generic data these 18
+   a2-values are distinct. Distinctness is a Zariski-open condition, so one instance where
+   they are distinct suffices. They are distinct in all 50 tested instances: the smallest
+   gap is 2.6e-5, far above the solver's ~1e-12 error. So the
+   eigenvectors are independent and |E| ≥ 18.
+4. **Conclusion.** At eigen size 18, |G| = |C| − 18 ≥ 12. ∎
+
+Only this formulation is covered. The published 11 × 26 template uses a different input
+system.
+
+## The repaired counting bound (P1b fixed by Lemma L)
+
+The retracted P1b used the right inequality with the wrong search space. Every valid template
+with eigen size N satisfies
+
+    #rows(C) ≥ rank M_C ≥ |C| − N,                                   (★)
+
+where #rows(C) counts *all* translates t + S_i inside C. Adding every fitting row keeps a
+template valid, so all fitting rows may be assumed. P1b failed because tiny column sets satisfy
+(★). **Lemma L removes them:** the equations used must have finitely many x_h-values on their
+common torus zeros, so C must contain a translate of supp f for some f in every such "finite"
+set of equations. Call that translate the **anchor**.
+
+Two facts make the repaired bound computable for a target value c:
+
+- **Unreached points can be deleted.** If no fitting row meets b ∈ C, then C \ {b} has the same
+  rows and one point fewer, so (★) only gets easier there. A minimal violating C is therefore
+  *anchor ∪ X*, where X is a union of exteriors (row minus anchor) of fitting rows.
+- **Finitely many candidates.** |C| ≤ c bounds |X| ≤ c − |anchor|. Enumerating unions of row
+  exteriors of that size is a finite search.
+
+`research/convexity/support_bound.py` finds the anchors. It certifies a set of equations as
+*infinite* when, at a true solution, its Jacobian has full row rank and its tangent space moves
+x_h. That is an open condition, so it holds for generic data. Sets it cannot certify are treated
+as finite, which can only weaken the bound.
+
+## Theorem P1d (7pt focal+radial: symgen's template is optimal) — proved, computer-assisted
+
+**Theorem.** For `problem_relpose_7p_fr_1s_partial_elim` (a3 hidden, generic data), every valid
+template with the minimal eigen size 19 has **|G| ≥ 22**. symgen's 22 + 19 template is
+therefore **optimal**.
+
+*Proof.*
+
+1. **Anchor.** The supports have sizes 6, 26, 35, 38, 38. Every set of equations not
+   certified infinite contains f3, f4 or f5. So C contains a translate of S3 (35 points), S4 or
+   S5 (38 points). Translate it to the origin.
+2. **Minimal eigen size.** The 19 solutions have pairwise distinct a3, with smallest gap 0.07
+   against a residual of 1e-11. By Theorem 2 every valid template has |E| ≥ 19.
+3. **Counting.** Suppose |C| ≤ 40. By the deletion argument, C = anchor ∪ X with X a union of
+   row exteriors and |X| ≤ 5 (anchor S3) or ≤ 2 (S4, S5). There are 71, 5 and 5 such exteriors,
+   giving 436 + 9 + 9 candidate column sets. `research/convexity/min_elim_7pt_exact.py` counts
+   their rows. Every candidate has #rows(C) ≤ |C| − 21, so (★) fails by at least 2.
+   Hence |C| ≥ 41 and |G| ≥ 22. ∎
+
+Steps 1 and 3 are pure counting. The data enter only through "these equation sets are infinite"
+and "the 19 a3-values are distinct", both generic conditions.
+
+## Status across the benchmarks (minimal eigen size, matrix-inverse size |G|)
+
+| problem (hidden) | N_min | anchor bound | proved optimum | symgen |G| |
+|---|---|---|---|---|
+| thesis Ex. 4.2.1 (x1) | 9 | 16 − 9 = 7 | **11** (P1b′) | 11 |
+| 6pt focal, `problems/` (a2) | 18 | 30 − 18 = **12** | **12** (P1c) | 12 |
+| 7pt focal+radial (a3) | 19 | 35 − 19 = 16 | **22** (P1d) | 22 |
+| 9pt two radial (a3) | 27 | 57 − 27 = 30 | open, in [30, 90] | 90 |
+| opt PnP (a3) | 27 | 20 − 27 < 0, vacuous | open, in [1, 87] | 87 |
+
+So the generator's templates are proven optimal on three of the five systems. The open cases fail
+for different reasons:
+
+- **9pt.** The anchor S4 already passes (★) with slack 1 (31 rows on 57 columns). The true
+  obstruction is rank, not count: rows inside a large C have syzygies.
+- **opt PnP.** The three supports are equal (20 monomials each), smaller than N_min = 27.
+  Lemma L forces only one of them.
+
+Both need a rank-aware bound. One option is to subtract the Koszul syzygies that fit in C. The
+other is to add the P1a face layers, which must lie in G for every w with w_h > 0.
+
 ## What this says about the thesis
 
 The thesis's "convex sets fit more translates" (condition C1) is a statement about
@@ -129,13 +225,10 @@ a correct (1b) bound is open.
 
 ## Next steps
 
-1. Turn the proof pattern of P1b′ into a general bound: Lemma L forces the supports of the
-   equations needed for finiteness, P1a gives the face layers, and a finite exact search
-   covers the rest. Then apply it to the 3-variable benchmarks.
-2. Compute the P1a and P1b bounds for the benchmark problems (6pt focal, 9pt radial,
-   opt PnP, 7pt) and compare with the best published templates (11×26, 73×97, 87×114,
-   34×56). For faces of dimension ≥ 2, λ_w needs a higher-dimensional
-   certificate-size bound. Counting is weak when there are many equations (6pt focal
-   has 10).
+1. A rank-aware version of (★) for 9pt and opt PnP. It would subtract the Koszul syzygies
+   x^t(f_j e_i − f_i e_j) that fit in C, and require the P1a layers inside G.
+2. Compare with the best published templates (73×97 for 9pt, 87×114 for opt PnP). Those use
+   other formulations, so the bounds above do not apply to them directly.
 3. Lean: P1a is a short extension of `face_kernel`'s restriction argument plus
-   `EigenSize.finrank_ker_le`.
+   `EigenSize.finrank_ker_le`. The counting step (★) is `EigenSize.finrank_ker_le` plus
+   rank ≤ #rows.
