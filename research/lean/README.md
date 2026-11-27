@@ -26,6 +26,11 @@
     solutions). For f0′ = P(h) − Σ x with P non-constant, every valid template has
     |C \ E| ≥ 1 + |X| + |sets used|, via a rational curve of solutions with h = t and
     Lemma L.
+  - `Approx.cover_ratio`: the arithmetic of **Theorem C4** (APX-hardness). On cubic-graph
+    instances (|X| ≤ 3τ), a template within ratio ρ yields a vertex cover within
+    τ + (ρ − 1)(1 + 4τ). Its cover-extraction input is `min_elim_lower_bound` /
+    `min_elim_lower_bound_poly`. The cited 100/99 hardness of cubic vertex cover is not
+    formalised.
 
   Not formalised: the encoding of the flat template as a `FaceObstruction` template
   (routine), and the complexity-theoretic wrapper (NP membership and the Karp reduction).

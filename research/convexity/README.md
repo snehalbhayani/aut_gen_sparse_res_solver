@@ -22,6 +22,7 @@ Scripts (exact over GF(p) or Q unless noted, using `symgen`):
 | `support_bound.py` | Lemma-L anchor bound on all benchmarks (Jacobian certificate at a numeric solution) |
 | `min_elim_7pt_exact.py` | Theorem P1d: counting search showing symgen's 7pt template is optimal |
 | `setcover_reduction.py`, `lifting_test.py`, `lifting_exhaustive.py`, `c3_check.py` | Part 2: the SET COVER gadget systems (NP-hardness) |
+| `apx_check.py` | Theorem C4: gadget systems of cubic graphs, min |G| = 1 + |X| + vertex cover |
 
 ## 1. Open questions in the thesis (complete list)
 

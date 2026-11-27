@@ -213,6 +213,50 @@ containing h are sparse. Here f0 involves every element, and that turns the prob
 a covering problem. **The hardness is combinatorial (set cover), not caused by
 non-genericity.**
 
+## Theorem C4 (APX-hardness) — proved
+
+**Theorem.** MIN-ELIM is APX-hard. For every ε > 0 it is NP-hard to approximate within
+**397/396 − ε**. This holds for affine-linear systems with a unique solution, with the eigen
+size free or fixed at its minimum. By the C3 construction, it also holds for MIN-ELIM-N for
+every fixed N. So no polynomial-time generator can guarantee templates within a factor
+1 + δ of optimal for small δ > 0, unless P = NP.
+
+*Proof.* Use an L-reduction from VERTEX COVER on 3-regular graphs. That problem is NP-hard
+to approximate within 100/99 − ε (Chlebík and Chlebíková, *Complexity of approximating
+bounded variants of optimization problems*, TCS 2006).
+
+1. **Instance.** Take a cubic graph Γ with n vertices and minimum vertex cover τ. Elements
+   are the edges of Γ, so |X| = 3n/2. There is one set per vertex, namely its 3 incident
+   edges. Set covers are exactly vertex covers, so OPT_SC = τ. Build the C2 gadget system,
+   or the C3 system for N solutions. Its size is linear in n, and its coefficients are small
+   integers, as in C2.
+2. **Optimum.** By C2/C3, OPT′ = 1 + |X| + τ. Every vertex covers 3 of the 3n/2 edges,
+   so τ ≥ n/2 and |X| ≤ 3τ. Hence OPT′ ≤ 1 + 4τ ≤ 5τ.
+3. **Solutions map back.** Take any valid template with |G| = c. Squarify it (Gaussian
+   elimination) and read off the used gadget equations. Their set variables form a vertex
+   cover of size **≤ c − 1 − |X|**. This step is machine-checked as
+   `Hardness.min_elim_lower_bound` (C2) and `min_elim_lower_bound_poly` (C3). So
+   cover − τ ≤ c − OPT′, an L-reduction with α = 5, β = 1.
+4. **Constant.** Suppose a template comes within ratio ρ. Then
+   cover ≤ ρ(1 + |X| + τ) − 1 − |X| = τ + (ρ − 1)(1 + |X| + τ) ≤ τ(1 + (ρ − 1)(4 + 1/τ)).
+   - Instances with τ below a constant have bounded size and are solved exactly.
+   - So a ratio ρ < 1 + 1/396 for MIN-ELIM gives a ratio below 100/99 for cubic vertex
+     cover, which is NP-hard. This inequality is machine-checked as
+     `Hardness.Approx.cover_ratio`. ∎
+
+*Check* (`research/convexity/apx_check.py`, exact over GF(p)): for K4, the prism, the cube Q3
+and the Petersen graph, min |G| = 1 + |X| + τ (10, 14, 17, 22). K4 and the prism were brute
+forced over all variable sets.
+
+**What is still open: logarithmic hardness.** Set cover's (1 − ε) ln n bound does not
+transfer, because every element costs one forced column. The forced part |X| is at least the
+set-cover optimum, so these instances always admit a 2-approximation. Within this gadget
+family (one dense f0 and 2-sparse positive-gain rows), every variable costs exactly one row.
+The objective is then a unit-node-weight connectivity cost, and such costs typically allow
+constant-factor approximation. Super-constant hardness would therefore need gadgets with
+≥ 3-sparse rows, where using a set would force many rows at once. Whether MIN-ELIM is in APX
+at all, i.e. constant-factor approximable on all systems, is also open.
+
 ## Plan
 
 1. ~~NP-hardness of the flat linear case~~: done (Theorem C1).
@@ -256,46 +300,23 @@ non-genericity.**
    The bookkeeping (an injective map into G across levels, and the rank conditions on the
    restricted blocks) still has to be written out and checked.
 
-3. **Approximation (open; analysis).** The optimum is 1 + |X| + OPT_SC. The additive
-   |X| swamps any multiplicative gap in OPT_SC, so set cover's (1 − ε) ln n
-   inapproximability (Dinur–Steurer 2014) does not transfer.
+3. ~~**Approximation**~~: **APX-hardness done** (Theorem C4, bounded-occurrence instances of
+   the C2 gadgets). Logarithmic hardness is open. The notes below record why the natural
+   amplification fails.
 
-   The natural amplification gives each set a private chain y_S^(1) – … – y_S^(w) of
-   positive-gain rows, with the only unbalanced cycle (the double edge) at the end of the
-   chain. Element edges get gain 1, so every cycle through shared elements is balanced.
-   The sign-trick lemma still applies, since the graph is bipartite with positive gains
-   and X lies in one colour class.
+   - **Private chains.** Give each set a private chain y_S^(1) – … – y_S^(w) of
+     positive-gain rows, with the only unbalanced cycle (the double edge) at the end. Give
+     element edges gain 1, so cycles through shared elements are balanced. The sign-trick
+     lemma still applies.
+   - **Loophole.** Lemma L needs only *one* unbalanced cycle per connected component. Sets
+     that share elements can share one paid chain, so the cost is #sets + w · #components,
+     not w · #sets. Entering a chain at its element end avoids paying for it.
+   - **Candidate fixes:**
+     - an "atomic" heavy set variable, i.e. a block of w variables that every row touching
+       the set must involve with generic coefficients (≥ 3-sparse rows);
+     - a reduction from a problem whose cost is naturally per component.
 
-   **Loophole:** Lemma L only needs *one* unbalanced cycle per connected component. Sets
-   that share elements can share one paid chain, so the cost becomes
-   #sets + w · #components, not w · #sets.
-
-   Candidate fixes:
-   - private element copies per set, linked to the shared element in a way that keeps
-     components separate;
-   - reducing from a problem whose cost is naturally per component, such as a group
-     Steiner variant.
-
-   Until one works, MIN-ELIM is known to be NP-hard but **not** known to be hard to
-   approximate.
-
-   **Structural obstruction (observation).** On the C1–C3 gadget instances, every cover has
-   at most |X| sets. So the flat template from *any* cover costs at most 1 + 2|X| ≤ 2·OPT,
-   and these instances admit a trivial 2-approximation. Any inapproximability result
-   beyond a constant factor therefore needs gadgets in which the "forced" part (here the
-   |X| element columns dragged in by f0) is small compared with the optimisation part.
-
-   That points to two directions:
-   - **Reduce the forced part:** make the hidden variable's equation sparse and force the
-     covering requirement through a chain of determinations instead of one dense
-     equation.
-   - **Accept the result:** MIN-ELIM may well be constant-factor approximable on natural
-     classes, which would be good news for generators.
-
-   Next step: look for an APX-hardness reduction from bounded-occurrence SET COVER or
-   VERTEX COVER, with a sparse f0 and a determination chain that provably cannot be
-   short-cut.
-4. ~~**Genuine minimal problems (N > 1)**~~: **done**, see Theorem C3 below. (The earlier
+4. ~~**Genuine minimal problems (N > 1)**~~: **done**, see Theorem C3 above. (The earlier
    z-level construction needed a per-level lemma; C3 avoids it by putting the N solutions
    into the hidden variable itself.)
 5. ~~**Lean**~~: **done** for the algebraic core. See `research/lean/Hardness.lean`:

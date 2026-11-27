@@ -895,4 +895,24 @@ theorem min_elim_lower_bound_poly {ι : Type u} [Fintype ι] (t : ι → Exp n) 
 
 end C3
 
+
+/-! ## Theorem C4: approximation transfer (arithmetic of the L-reduction) -/
+
+namespace Approx
+
+/-- **Theorem C4, arithmetic step.** On a cubic graph the C2/C3 system has `|X| ≤ 3τ`
+elements, and any valid template with `|C \ E| = c` yields a cover of size `cover` with
+`1 + |X| + cover ≤ c` (`min_elim_lower_bound`, `min_elim_lower_bound_poly`). If the
+template is within ratio `ρ ≥ 1` of the optimum `1 + |X| + τ`, the cover is within
+`τ + (ρ - 1)(1 + 4τ)`, i.e. ratio `1 + (ρ - 1)(4 + 1/τ)` for vertex cover. -/
+theorem cover_ratio (X τ c cover : ℕ) (ρ : ℚ) (hρ : 1 ≤ ρ) (hX : X ≤ 3 * τ)
+    (hcover : 1 + X + cover ≤ c) (hc : (c : ℚ) ≤ ρ * (1 + X + τ)) :
+    (cover : ℚ) ≤ τ + (ρ - 1) * (1 + 4 * τ) := by
+  have hcov : ((1 + X + cover : ℕ) : ℚ) ≤ c := by exact_mod_cast hcover
+  have hXq : (X : ℚ) ≤ 3 * τ := by exact_mod_cast hX
+  push_cast at hcov
+  nlinarith [mul_le_mul_of_nonneg_left hXq (sub_nonneg.mpr hρ)]
+
+end Approx
+
 end Hardness
