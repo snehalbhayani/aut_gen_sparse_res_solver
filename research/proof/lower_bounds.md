@@ -233,7 +233,8 @@ layer L either misses A or meets it exactly in A's top face. Hence
 - **(b).** No proper subset of in_{e3}(F) is free of torus zeros. This was checked with a
   Gröbner count at a random instance; the three-equation subsets have positive mixed volume.
   So L contains a translate of S4′.
-- **Search.** No row-connected L with |L| ≤ 28 passes (a)–(c), so λ_{e3} ≥ 29.
+- **Search.** No row-connected L with |L| ≤ 28 passes (a)–(c), so λ_{e3} ≥ 29. Adding (d)
+  does not remove the 29-point set (a full search up to 32 points took 1 hour).
 - **Global anchor.** Every proper subset of F is certified infinite (`support_bound.py`), so f4
   is used and A is a translate of S4: 57 points, with a top face of 19.
 - **Conclusion.** |C| ≥ 57 + 29 − 19 = 67, so **|G| ≥ 40** at eigen size 27, up from 30.
