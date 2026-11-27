@@ -275,6 +275,23 @@ non-genericity.**
 
    Until one works, MIN-ELIM is known to be NP-hard but **not** known to be hard to
    approximate.
+
+   **Structural obstruction (observation).** On the C1–C3 gadget instances, every cover has
+   at most |X| sets. So the flat template from *any* cover costs at most 1 + 2|X| ≤ 2·OPT,
+   and these instances admit a trivial 2-approximation. Any inapproximability result
+   beyond a constant factor therefore needs gadgets in which the "forced" part (here the
+   |X| element columns dragged in by f0) is small compared with the optimisation part.
+
+   That points to two directions:
+   - **Reduce the forced part:** make the hidden variable's equation sparse and force the
+     covering requirement through a chain of determinations instead of one dense
+     equation.
+   - **Accept the result:** MIN-ELIM may well be constant-factor approximable on natural
+     classes, which would be good news for generators.
+
+   Next step: look for an APX-hardness reduction from bounded-occurrence SET COVER or
+   VERTEX COVER, with a sparse f0 and a determination chain that provably cannot be
+   short-cut.
 4. ~~**Genuine minimal problems (N > 1)**~~: **done**, see Theorem C3 below. (The earlier
    z-level construction needed a per-level lemma; C3 avoids it by putting the N solutions
    into the hidden variable itself.)
