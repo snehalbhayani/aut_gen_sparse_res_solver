@@ -152,6 +152,52 @@ flat brute force (`setcover_reduction.py`) both agree with C2.
 - **Lemma L is a cheap, general pruning rule:** the equations used must have finitely many
   x_h-values on their common zero set.
 
+## Theorem C3 (hardness for genuine minimal problems, any N) — proved
+
+**Theorem.** For every fixed N ≥ 1, MIN-ELIM-N is NP-complete. MIN-ELIM-N is MIN-ELIM
+restricted to zero-dimensional systems with exactly N solutions, all with distinct x_h,
+with the eigen size fixed at its minimum N.
+
+*Construction.* Keep the SET COVER gadgets of C2 (positive gains, double edges, solution
+(x*, y*)). Replace f0 by
+
+    f0′ = Π_{i=1..N} (h − a_i) − ( Σ_{x∈X} x − Σ_{x∈X} x* ),
+
+with the a_i distinct and non-zero. The gadgets force (x, y) = (x*, y*), and then
+h ∈ {a_1, …, a_N}. So there are exactly N solutions with distinct h, and the minimal
+eigen size is N.
+
+*Upper bound.*
+
+- Take E = {1, h, …, h^(N−1)}, so E + e_h ⊆ C.
+- Take G = {h^N} ∪ X ∪ Y′ for a cover Y′. The rows are f0′ and the cover's gadgets.
+- f0′ is the only row containing h^N, and `cover_spans` (Lean) shows that the gadget rows
+  span X ∪ Y′. So the template is valid with |G| = 1 + |X| + OPT.
+
+*Lower bound.* Take any valid template, squarified.
+
+- **The used gadgets must pin down Σ x.** If they don't, there is a direction d with
+  d_h = 0, lin(g)·d = 0 for every used gadget g, and Σ_x d_x = 1.
+- **That gives infinitely many solutions of the used rows.** For t ∈ Q, put
+  s(t) = Π(t − a_i) and ξ(t) = (x*, y*) + s(t)·d with h = t. Then ξ(t) satisfies f0′
+  and every used gadget row.
+- **They are torus points with distinct h.** Each coordinate is a non-zero polynomial in t,
+  so it vanishes for only finitely many t. The h-values are pairwise distinct.
+- **f0′ must be used.** If it is not, take s ≡ 0 and let h = t vary freely.
+- **Contradiction with Lemma L** (`card_le`), which bounds the number of distinct
+  h-values by |E|.
+- **Conclusion.** f0′ is used and Σ e_x ∈ span(used gadgets). The sign-trick lemma
+  (`gadget_count`) then gives |F| ≥ |X| + |Y_used| with Y_used a cover, so
+  |G| = #rows ≥ 1 + |F| ≥ 1 + |X| + OPT. ∎
+
+*Check* (`research/convexity/c3_check.py`): on 5 random instances with N = 2…4, the
+system has exactly N solutions (h = the chosen roots), every cover gives a valid template,
+and every non-cover gives an invalid one.
+
+**Meaning.** Hardness is not an artefact of N = 1. For problems with any number of
+solutions, finding the smallest elimination template at the minimal eigen size is
+NP-hard.
+
 **Brute-force check** (`research/convexity/setcover_reduction.py`): on 40/40 random
 instances, the minimal flat |G| equals 1 + |X| + OPT_SC, with small-integer and random
 rational coefficients.
@@ -229,23 +275,9 @@ non-genericity.**
 
    Until one works, MIN-ELIM is known to be NP-hard but **not** known to be hard to
    approximate.
-4. **Genuine minimal problems (N > 1; analysis).** Theorem C2 has N = 1, so its eigen
-   size is minimal.
-
-   **Variant A (minimal eigen size = distinct x_h-values).** Add p(z) of degree N and set
-   f0 = h − Σ x − z. Then h takes N distinct values. Lemma L (general polynomial form,
-   machine-checked) still forces f0, p and a covering set of unbalanced gadget components
-   to be used. So every template has |G| ≥ #used equations ≥ 2 + |X| + OPT. That is a valid
-   lower bound, and NP-hardness follows if a matching upper bound holds.
-
-   **Upper bound (open).** A template whose eigen basis is {1, z, …, z^(N−1)} must reduce
-   h · z^j for each j < N, which suggests a cost of about N · (1 + |X| + OPT). The
-   lower-bound argument counts used *equations*, not their multiples per z-level. So the
-   bounds match only if a "per-level" version of Lemma L holds.
-
-   Next: either prove the per-level lemma (each z^j level needs its own covering rows), or
-   find a template that reuses rows across levels. Then check small cases exhaustively, as
-   in P1b′.
+4. ~~**Genuine minimal problems (N > 1)**~~: **done**, see Theorem C3 below. (The earlier
+   z-level construction needed a per-level lemma; C3 avoids it by putting the N solutions
+   into the hidden variable itself.)
 5. ~~**Lean**~~: **done** for the algebraic core. See `research/lean/Hardness.lean`:
    - `min_elim_lower_bound` (every template ≥ 1 + |X| + |sets used|, with a cover);
    - `cover_spans` (achievability);
