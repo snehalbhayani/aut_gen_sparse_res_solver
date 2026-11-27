@@ -194,6 +194,9 @@ eigen size is N.
 system has exactly N solutions (h = the chosen roots), every cover gives a valid template,
 and every non-cover gives an invalid one.
 
+**Lean:** the lower bound is machine-checked as `Hardness.min_elim_lower_bound_poly`
+(with `determines_sum_poly`). Achievability uses `cover_spans`.
+
 **Meaning.** Hardness is not an artefact of N = 1. For problems with any number of
 solutions, finding the smallest elimination template at the minimal eigen size is
 NP-hard.

@@ -22,6 +22,10 @@
     |C \ E| ≥ 1 + |X| + |set variables used|, and the used gadgets cover X.
   - `cover_spans`: achievability. A cover with double edges spans every variable of the
     flat template, so the flat template is valid.
+  - `determines_sum_poly`, `min_elim_lower_bound_poly`: **Theorem C3** (any number N of
+    solutions). For f0′ = P(h) − Σ x with P non-constant, every valid template has
+    |C \ E| ≥ 1 + |X| + |sets used|, via a rational curve of solutions with h = t and
+    Lemma L.
 
   Not formalised: the encoding of the flat template as a `FaceObstruction` template
   (routine), and the complexity-theoretic wrapper (NP membership and the Karp reduction).

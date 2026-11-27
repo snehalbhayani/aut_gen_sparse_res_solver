@@ -659,4 +659,240 @@ theorem cover_spans (h : Fin n) (X : Finset (Fin n)) (yv xv : ε → Fin n) (r :
 
 end Achieve
 
+/-! ## Theorem C3: any number N of solutions (nonlinear Lemma L step) -/
+
+section C3
+
+open FaceObstruction
+
+universe u
+
+variable {n : ℕ} {ε : Type*}
+
+/-- `m` distinct naturals avoiding a finite set of rationals. -/
+lemma good_naturals (B : Finset ℚ) (m : ℕ) :
+    ∃ f : Fin m → ℕ, Function.Injective f ∧ ∀ k, ((f k : ℕ) : ℚ) ∉ B := by
+  set R0 : Finset ℕ := Finset.range (m + B.card) with hR0
+  set S : Finset ℕ := R0.filter (fun s => (s : ℚ) ∉ B) with hS
+  have hSc : m ≤ S.card := by
+    have h1 := Finset.filter_card_add_filter_neg_card_eq_card (s := R0) (fun s : ℕ => (s : ℚ) ∉ B)
+    have h2 : (R0.filter (fun s : ℕ => ¬ ((s : ℚ) ∉ B))).card ≤ B.card := by
+      apply Finset.card_le_card_of_injOn (fun s : ℕ => (s : ℚ))
+      · intro s hs
+        simp only [Finset.mem_filter, not_not] at hs
+        exact hs.2
+      · intro a _ b _ hab
+        exact Nat.cast_injective hab
+    have hR0c : R0.card = m + B.card := Finset.card_range _
+    have hSdef : S.card = (R0.filter (fun s : ℕ => (s : ℚ) ∉ B)).card := rfl
+    omega
+  obtain ⟨S', hS'S, hS'c⟩ := Finset.exists_subset_card_eq hSc
+  refine ⟨fun k => S'.orderEmbOfFin hS'c k, (S'.orderEmbOfFin hS'c).injective, fun k => ?_⟩
+  exact (Finset.mem_filter.mp (hS'S (Finset.orderEmbOfFin_mem S' hS'c k))).2
+
+/-- Evaluation of the C3 equations: `none` is `f0' = P(h) - Σ_{x∈X} x`, `some e` is a gadget. -/
+def evalC3 (h : Fin n) (X : Finset (Fin n)) (yv xv : ε → Fin n) (r : ε → ℚ)
+    (P : Polynomial ℚ) (cst : ε → ℚ) : Option ε → (Fin n → ℚ) → ℚ
+  | none, ξ => P.eval (ξ h) - ∑ x ∈ X, ξ x
+  | some e, ξ => cst e + ∑ j, gvec yv xv r e j * ξ j
+
+/-- **Nonlinear Lemma L step (Theorem C3).** In a valid template for the C3 system
+(`f0' = P(h) − Σ x` with `P` non-constant, positive-gain gadgets, torus solution `v0`),
+`f0'` is used and `Σ_{x∈X} e_x` lies in the span of the used gadget rows. -/
+theorem determines_sum_poly {ι : Type*} [Fintype ι] (t : ι → Exp n) (p : ι → SPoly ℚ n)
+    (C E : Finset (Exp n)) (hEC : E ⊆ C) (h : Fin n) (hE : ∀ e ∈ E, e + Pi.single h 1 ∈ C)
+    (hEne : E.Nonempty) (hsupp : ∀ r, ∀ α ∈ (p r).supp, t r + α ∈ C)
+    (hvalid : ∀ u : Exp n → ℚ, (∀ b, u b ≠ 0 → b ∈ C ∧ b ∉ E) →
+        (∀ r, ∑ b ∈ C, entry t p r b * u b = 0) → ∀ b, u b = 0)
+    (X : Finset (Fin n)) (hhX : h ∉ X) (yv xv : ε → Fin n) (r : ε → ℚ)
+    (hx : ∀ e, xv e ∈ X) (hyh : ∀ e, yv e ≠ h)
+    (P : Polynomial ℚ) (hP : 0 < P.natDegree) (cst : ε → ℚ) (eq : ι → Option ε)
+    (heval : ∀ i (ξ : Fin n → ℚ), (∀ j, ξ j ≠ 0) →
+        ∑ α ∈ (p i).supp, (p i).coeff α * mpow ξ α = evalC3 h X yv xv r P cst (eq i) ξ)
+    (v0 : Fin n → ℚ) (hv0 : ∀ j, v0 j ≠ 0) (hv0z : ∀ o, evalC3 h X yv xv r P cst o v0 = 0) :
+    (∃ i, eq i = none) ∧
+      (∑ x ∈ X, (Pi.single x (1 : ℚ) : Fin n → ℚ)) ∈ Submodule.span ℚ
+        (((Finset.univ.biUnion fun i => (eq i).toFinset).image (gvec yv xv r) : Finset (Fin n → ℚ)) :
+          Set (Fin n → ℚ)) := by
+  have hgh : ∀ e, gvec yv xv r e h = 0 := by
+    intro e
+    have hxh : xv e ≠ h := fun hh => hhX (hh ▸ hx e)
+    simp [gvec, Pi.single_apply, hyh e, hxh]
+  -- gadget rows ignore the h-coordinate
+  have gad_h : ∀ e (ξ ξ' : Fin n → ℚ), (∀ j, j ≠ h → ξ j = ξ' j) →
+      evalC3 h X yv xv r P cst (some e) ξ = evalC3 h X yv xv r P cst (some e) ξ' := by
+    intro e ξ ξ' hξ
+    simp only [evalC3]
+    congr 1
+    refine Finset.sum_congr rfl (fun j _ => ?_)
+    by_cases hj : j = h
+    · subst hj; rw [hgh e, zero_mul, zero_mul]
+    · rw [hξ j hj]
+  set Ug : Finset ε := Finset.univ.biUnion fun i => (eq i).toFinset with hUg
+  have hUg_mem : ∀ i e, eq i = some e → e ∈ Ug := by
+    intro i e hi
+    simp only [hUg, Finset.mem_biUnion, Finset.mem_univ, true_and]
+    exact ⟨i, by simp [hi]⟩
+  -- a family of torus points with distinct h solving all used rows contradicts Lemma L
+  have contra : ∀ (ξ : Fin (E.card + 1) → Fin n → ℚ), (∀ k j, ξ k j ≠ 0) →
+      (∀ k i, evalC3 h X yv xv r P cst (eq i) (ξ k) = 0) →
+      Function.Injective (fun k => ξ k h) → False := by
+    intro ξ hξ hz hinj
+    have := LemmaL.card_le t p C E hEC h hE hEne hsupp hvalid ξ hξ
+      (fun k i => by rw [heval i (ξ k) (hξ k)]; exact hz k i) hinj
+    omega
+  constructor
+  · -- f0' must be used
+    by_contra hno
+    push_neg at hno
+    obtain ⟨f, hfinj, hfB⟩ := good_naturals {0} (E.card + 1)
+    refine contra (fun k j => if j = h then ((f k : ℕ) : ℚ) else v0 j) ?_ ?_ ?_
+    · intro k j
+      by_cases hj : j = h
+      · simp only [hj, if_true]; intro h0; exact hfB k (by simp [h0])
+      · simp only [hj, if_false]; exact hv0 j
+    · intro k i
+      obtain ⟨e, he⟩ := Option.ne_none_iff_exists'.mp (hno i)
+      rw [he, gad_h e _ v0 (fun j hj => by simp [hj])]
+      exact hv0z (some e)
+    · intro a b hab
+      simp only [if_true] at hab
+      exact hfinj (by exact_mod_cast hab)
+  · -- Σ e_x is in the gadget span
+    by_contra hnot
+    obtain ⟨φ, hφs, hφS⟩ := Submodule.exists_dual_map_eq_bot_of_nmem hnot inferInstance
+    set sX : Fin n → ℚ := ∑ x ∈ X, (Pi.single x (1 : ℚ) : Fin n → ℚ) with hsX
+    have hφg : ∀ e ∈ Ug, φ (gvec yv xv r e) = 0 := by
+      intro e he
+      have hmem : gvec yv xv r e ∈ Submodule.span ℚ ((Ug.image (gvec yv xv r) : Finset _) : Set _) :=
+        Submodule.subset_span (Finset.mem_coe.mpr (Finset.mem_image.mpr ⟨e, he, rfl⟩))
+      have : φ (gvec yv xv r e) ∈ (Submodule.span ℚ ((Ug.image (gvec yv xv r) : Finset _) :
+          Set _)).map φ := Submodule.mem_map_of_mem hmem
+      rw [hφS] at this
+      exact (Submodule.mem_bot ℚ).mp this
+    set d : Fin n → ℚ := fun j => if j = h then 0 else φ (Pi.single j (1 : ℚ) : Fin n → ℚ) / φ sX
+      with hd
+    have hdot : ∀ w : Fin n → ℚ, w h = 0 → ∑ j, w j * d j = φ w / φ sX := by
+      intro w hw
+      rw [LemmaL.dual_expand φ w, Finset.sum_div]
+      refine Finset.sum_congr rfl (fun j _ => ?_)
+      by_cases hj : j = h
+      · subst hj; simp [hd, hw]
+      · simp only [hd, if_neg hj]; ring
+    have hsXh : sX h = 0 := by
+      simp only [hsX, Finset.sum_apply]
+      exact Finset.sum_eq_zero (fun x hxX => by
+        have : h ≠ x := fun hh => hhX (hh ▸ hxX)
+        simp [Pi.single_apply, this])
+    have hdX : ∑ x ∈ X, d x = 1 := by
+      have h1 := hdot sX hsXh
+      rw [div_self hφs] at h1
+      rw [← h1, hsX]
+      simp only [Finset.sum_apply, Finset.sum_mul]
+      rw [Finset.sum_comm]
+      refine Finset.sum_congr rfl (fun x _ => ?_)
+      simp [Pi.single_apply]
+    have hdg : ∀ e ∈ Ug, ∑ j, gvec yv xv r e j * d j = 0 := by
+      intro e he
+      rw [hdot _ (hgh e), hφg e he, zero_div]
+    -- bad parameter values
+    set sP : ℚ → ℚ := fun τ => P.eval τ - P.eval (v0 h) with hsP
+    have hroots : ∀ c : ℚ, P - Polynomial.C c ≠ 0 := by
+      intro c hc
+      have := congrArg Polynomial.natDegree hc
+      rw [Polynomial.natDegree_sub_C, Polynomial.natDegree_zero] at this
+      omega
+    set B : Finset ℚ := insert 0 ((Finset.univ.filter fun j : Fin n => j ≠ h ∧ d j ≠ 0).biUnion
+      fun j => (P - Polynomial.C (P.eval (v0 h) - v0 j / d j)).roots.toFinset) with hB
+    obtain ⟨f, hfinj, hfB⟩ := good_naturals B (E.card + 1)
+    set ξ : Fin (E.card + 1) → Fin n → ℚ := fun k j =>
+      if j = h then ((f k : ℕ) : ℚ) else v0 j + sP ((f k : ℕ) : ℚ) * d j with hξ
+    refine contra ξ ?_ ?_ ?_
+    · intro k j hzero
+      by_cases hj : j = h
+      · simp only [hξ, hj, if_true] at hzero
+        exact hfB k (by rw [hB, hzero]; exact Finset.mem_insert_self _ _)
+      · simp only [hξ, hj, if_false] at hzero
+        by_cases hdj : d j = 0
+        · rw [hdj, mul_zero, add_zero] at hzero; exact hv0 j hzero
+        · apply hfB k
+          rw [hB]
+          apply Finset.mem_insert_of_mem
+          rw [Finset.mem_biUnion]
+          refine ⟨j, by simp [hj, hdj], ?_⟩
+          rw [Multiset.mem_toFinset, Polynomial.mem_roots (hroots _), Polynomial.IsRoot,
+            Polynomial.eval_sub, Polynomial.eval_C]
+          simp only [hsP] at hzero
+          field_simp
+          linarith
+    · intro k i
+      cases hi : eq i with
+      | none =>
+        have h0 := hv0z none
+        simp only [evalC3] at h0 ⊢
+        have hsum : ∑ x ∈ X, ξ k x = ∑ x ∈ X, v0 x + sP ((f k : ℕ) : ℚ) := by
+          have : ∀ x ∈ X, ξ k x = v0 x + sP ((f k : ℕ) : ℚ) * d x := by
+            intro x hxX
+            have : x ≠ h := fun hh => hhX (hh ▸ hxX)
+            simp [hξ, this]
+          rw [Finset.sum_congr rfl this, Finset.sum_add_distrib, ← Finset.mul_sum, hdX, mul_one]
+        rw [hsum]
+        simp only [hξ, if_true, hsP]
+        linarith
+      | some e =>
+        have he := hUg_mem i e hi
+        have h0 := hv0z (some e)
+        simp only [evalC3] at h0 ⊢
+        have : ∑ j, gvec yv xv r e j * ξ k j =
+            ∑ j, gvec yv xv r e j * v0 j + sP ((f k : ℕ) : ℚ) * ∑ j, gvec yv xv r e j * d j := by
+          rw [Finset.mul_sum, ← Finset.sum_add_distrib]
+          refine Finset.sum_congr rfl (fun j _ => ?_)
+          by_cases hj : j = h
+          · subst hj; simp [hgh e]
+          · simp only [hξ, if_neg hj]; ring
+        rw [this, hdg e he, mul_zero, add_zero]
+        exact h0
+    · intro a b hab
+      simp only [hξ, if_true] at hab
+      exact hfinj (by exact_mod_cast hab)
+
+/-- **Theorem C3 lower bound (machine-checked).** For the C3 system with any non-constant
+`P` (degree N, so N solutions), every valid template has
+`|C \ E| ≥ 1 + |X| + |set variables used|`, and the used gadgets cover `X`. -/
+theorem min_elim_lower_bound_poly {ι : Type u} [Fintype ι] (t : ι → Exp n) (p : ι → SPoly ℚ n)
+    (C E : Finset (Exp n)) (hEC : E ⊆ C) (h : Fin n) (hE : ∀ e ∈ E, e + Pi.single h 1 ∈ C)
+    (hEne : E.Nonempty) (hsupp : ∀ r, ∀ α ∈ (p r).supp, t r + α ∈ C)
+    (hvalid : ∀ u : Exp n → ℚ, (∀ b, u b ≠ 0 → b ∈ C ∧ b ∉ E) →
+        (∀ r, ∑ b ∈ C, entry t p r b * u b = 0) → ∀ b, u b = 0)
+    (X : Finset (Fin n)) (hhX : h ∉ X) (yv xv : ε → Fin n) (r : ε → ℚ) (hr : ∀ e, 0 < r e)
+    (hx : ∀ e, xv e ∈ X) (hy : ∀ e, yv e ∉ X) (hyh : ∀ e, yv e ≠ h)
+    (P : Polynomial ℚ) (hP : 0 < P.natDegree) (cst : ε → ℚ) (eq : ι → Option ε)
+    (heval : ∀ i (ξ : Fin n → ℚ), (∀ j, ξ j ≠ 0) →
+        ∑ α ∈ (p i).supp, (p i).coeff α * mpow ξ α = evalC3 h X yv xv r P cst (eq i) ξ)
+    (v0 : Fin n → ℚ) (hv0 : ∀ j, v0 j ≠ 0) (hv0z : ∀ o, evalC3 h X yv xv r P cst o v0 = 0) :
+    ∃ Ug : Finset ε, X ⊆ Ug.image xv ∧ 1 + X.card + (Ug.image yv).card ≤ (C \ E).card := by
+  obtain ⟨κ, _, a, hcard, hvalid'⟩ := squarify t p C E hvalid
+  obtain ⟨hf0, hz⟩ := determines_sum_poly (t ∘ a) (p ∘ a) C E hEC h hE hEne
+    (fun k α hα => hsupp (a k) α hα) hvalid' X hhX yv xv r hx hyh P hP cst (eq ∘ a)
+    (fun k ξ hξ => heval (a k) ξ hξ) v0 hv0 hv0z
+  set Ug : Finset ε := Finset.univ.biUnion fun k => ((eq ∘ a) k).toFinset with hUg
+  obtain ⟨hcov, hcount⟩ := gadget_count X yv xv r hr hx hy Ug hz
+  refine ⟨Ug, hcov, ?_⟩
+  have himg : insert none (Ug.map ⟨some, Option.some_injective _⟩) ⊆ Finset.univ.image (eq ∘ a) := by
+    intro o ho
+    rcases Finset.mem_insert.mp ho with rfl | ho
+    · obtain ⟨k, hk⟩ := hf0
+      exact Finset.mem_image.mpr ⟨k, Finset.mem_univ _, hk⟩
+    · obtain ⟨e, he, rfl⟩ := Finset.mem_map.mp ho
+      simp only [hUg, Finset.mem_biUnion, Finset.mem_univ, true_and, Option.mem_toFinset,
+        Option.mem_def] at he
+      obtain ⟨k, hk⟩ := he
+      exact Finset.mem_image.mpr ⟨k, Finset.mem_univ _, hk⟩
+  have hc1 := Finset.card_le_card himg
+  rw [Finset.card_insert_of_not_mem (by simp), Finset.card_map] at hc1
+  have hc2 : (Finset.univ.image (eq ∘ a)).card ≤ Fintype.card κ := Finset.card_image_le.trans (by simp)
+  omega
+
+end C3
+
 end Hardness
