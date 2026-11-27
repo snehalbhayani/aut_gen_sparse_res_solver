@@ -98,17 +98,46 @@ non-genericity.**
 ## Plan
 
 1. ~~NP-hardness of the flat linear case~~: done (Theorem C1).
-2. **Lifting lemma (open).** For affine-linear systems, do non-flat templates (rows x^t f)
-   ever give smaller |G|? If not, Theorem C1 holds for unrestricted MIN-ELIM. This is
-   subtle: multipliers containing h let gadget rows reach h-monomials.
-   `research/convexity/lifting_test.py` ran symgen's exact greedy search over column sets
-   of degree ≤ 2 on 6 gadget instances. It never beat the flat optimum, but it is
-   inconclusive: on 4 of the 6 the greedy search did not even reach the flat optimum
-   (e.g. 8 against 6).
+2. **Lifting lemma (open; evidence and proof sketch).** For affine-linear systems, do
+   non-flat templates (rows x^t f, columns of degree ≥ 2) ever give smaller |G|? If not,
+   Theorem C1 holds for unrestricted MIN-ELIM.
 
-   That shortfall is itself a data point: **symgen's deterministic greedy reduction is
-   measurably suboptimal** on the instances where the problem is NP-hard. This argues for
-   exact or ILP-based search on small problems and approximation guarantees on large ones.
+   *Greedy evidence* (`lifting_test.py`). symgen's exact greedy search over degree-≤2
+   column sets on 6 gadget instances never beat the flat optimum. It is inconclusive,
+   though: on 4 of the 6 the greedy search did not even reach the flat optimum (e.g. 8
+   against 6). That shortfall is itself a data point: **symgen's deterministic greedy
+   reduction is measurably suboptimal** on instances where the problem is NP-hard.
+
+   *Exhaustive evidence* (`lifting_exhaustive.py`), instance X = {0,1}, sets {0},{1}, flat
+   optimum |G| = 5.
+
+   - For a fixed column set C the best eigen basis is the maximal one,
+     E = {e ∈ C : e + e_h ∈ C}, since enlarging G only makes validity harder.
+   - So a column set is good iff its boundary columns are independent in the matrix of
+     all rows fitting in C.
+   - With degree ≤ 2, |G| ≤ 4 forces |E| ≤ 6 (only the 6 monomials of degree ≤ 1 have an
+     h-shift of degree ≤ 2), so |C| ≤ 10.
+   - All such column sets were checked (sizes up to 14). **None has |G| < 5.** So for this
+     instance, no degree-≤2 template beats the flat optimum. The harness does find the
+     flat optimum when allowed (|G| = 5).
+
+   *Proof sketch.* Take the f0-row x^t f0 of maximal h-degree H − 1.
+
+   - Each shifted column t + e_x (x ∈ X) is either eliminated at level H − 1, or it lies
+     in E. In the second case its h-shift t + e_x + e_h lies at the top level H. There it
+     can be spanned only by gadget rows based at t + e_h, since an f0-row based at
+     t + e_x would contradict maximality.
+   - Either way each element x costs one eliminated column. The anchored column t + e_h
+     is one more.
+   - The gadget rows around t + e_h form a shifted copy of the flat template, with the
+     anchored column playing the role of the constant 1. The frame-matroid argument then
+     forces the sets used, across the two levels, to cover X.
+   - Each set used contributes one eliminated y-column at some level. Total:
+     |G| ≥ 1 + |X| + OPT.
+
+   The bookkeeping (an injective map into G across levels, and the rank conditions on the
+   restricted blocks) still has to be written out and checked.
+
 3. **Approximation.** The cost has an additive offset of 1 + |X|, so set cover's ln n
    inapproximability does not transfer directly. A padded or gap-preserving variant is
    needed.
