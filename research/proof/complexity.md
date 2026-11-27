@@ -83,6 +83,75 @@ Membership in NP is shown above, so the problem is NP-complete. The coefficients
 taken in {−1, 1, 2, 3}, so it is strongly NP-hard. With generic coefficients every cycle
 is unbalanced, and the same proof applies.
 
+## Lemma L (used equations pin down the hidden variable) — proved, any system
+
+Let a template be valid and squarified, i.e. its rows are independent and number |G|.
+Let U_eq be the set of equations that occur in its rows. Then x_h takes **at most |E|
+distinct values** on V(U_eq) ∩ (K*)^n.
+
+*Proof.*
+
+- **Points give kernel vectors.** Every ξ ∈ V(U_eq) ∩ (K*)^n is a zero of every row, so
+  v(ξ) = (ξ^b)_{b∈C} ∈ ker M.
+- **The solver matrix exists.** dim ker M = |C| − |G| = |E|. Restriction to E is
+  injective (validity), hence bijective. So the solver matrix X, the shift
+  v|_E ↦ (v_{e+e_h})_e on kernel vectors, is well defined.
+- **Each point is an eigenvector.** X v(ξ)|_E = ξ_h v(ξ)|_E, with v(ξ)|_E ≠ 0.
+- **Finitely many eigenvalues.** X has at most |E| eigenvalues. ∎
+
+For affine-linear systems V(U_eq) is an affine subspace through the solution, so
+x_h must be constant on it. Equivalently, **e_h lies in the span of the linear parts of
+U_eq**: the used equations determine x_h. Also |G| = #rows ≥ |U_eq|.
+
+## Theorem C2 (NP-completeness of unrestricted MIN-ELIM) — proved
+
+**Theorem.** MIN-ELIM is strongly NP-complete with k in unary. This holds for arbitrary
+templates (any monomial multiples and column degrees), with the eigen size free or fixed
+at its minimum, already for affine-linear systems with a unique solution and coefficients
+in {−1, 1, …, 10}.
+
+*Proof.* Use the instance of Theorem C1 with **positive** gadget coefficients
+r_{S,x}, r'_S > 0 and r'_S ≠ r_{S,x_1(S)}, and a solution v* with non-zero coordinates.
+Take any valid template. Squarifying keeps it valid, so assume it is squarified. By
+Lemma L:
+
+1. **h is determined.** e_h ∈ span(lin(U_eq)). Only f0 contains h, so f0 ∈ U_eq. Comparing
+   h-coefficients gives Σ_{x∈X} e_x ∈ span(lin(F)), where F is the set of used gadget
+   equations.
+2. **Span of a gadget component.** View F as a gain graph on X ∪ Y. Each component K
+   contributes span = all of K^{V(K)} if K is unbalanced. If K is balanced it contributes
+   the hyperplane π^⊥, where π is the potential with π_y + r π_x = 0 on every edge.
+3. **Every element is in an unbalanced component.** With r > 0, along each edge the signs
+   of π_y and π_x are opposite. In a connected component all element variables therefore
+   get potentials of the **same** sign, so Σ_{x∈K∩X} π_x ≠ 0. Hence Σ e_x restricted to K
+   is not in π^⊥ whenever K contains an element. An isolated element is balanced with
+   span {0}. So every x lies in an unbalanced component.
+4. **Counting.** An unbalanced connected component has ≥ |V(K)| edges. Its y-vertices are
+   adjacent to its x-vertices, since the graph is bipartite, so together the components'
+   y's form a set cover. Hence |F| ≥ |X| + OPT_SC.
+5. **Conclusion.** |G| ≥ |U_eq| = 1 + |F| ≥ 1 + |X| + OPT_SC.
+
+The flat template of Theorem C1 achieves equality, with eigen size 1 (the minimum, since
+the solution is unique). So for both variants the optimum equals 1 + |X| + OPT_SC, and
+SET COVER reduces to MIN-ELIM.
+
+For membership in NP: a certificate gives ≤ k rows as (equation, multiplier) pairs. The
+columns are the touched monomials, and E = {c ∈ C : c + e_h ∈ C}. Validity is one rank
+test. ∎
+
+**Consistency checks.** The degree-≤2 exhaustive search (`lifting_exhaustive.py`) and the
+flat brute force (`setcover_reduction.py`) both agree with C2.
+
+**Take-aways for solver generators.**
+
+- **Finding the smallest template is NP-hard** in general, so every practical generator
+  (syzygy reduction, basis sampling, greedy parameter search, the Laurent generator,
+  symgen) is necessarily a heuristic unless P = NP.
+- **The hardness is combinatorial,** a set cover over which equations to use. Generic
+  coefficients do not remove it.
+- **Lemma L is a cheap, general pruning rule:** the equations used must have finitely many
+  x_h-values on their common zero set.
+
 **Brute-force check** (`research/convexity/setcover_reduction.py`): on 40/40 random
 instances, the minimal flat |G| equals 1 + |X| + OPT_SC, with small-integer and random
 rational coefficients.
@@ -98,9 +167,9 @@ non-genericity.**
 ## Plan
 
 1. ~~NP-hardness of the flat linear case~~: done (Theorem C1).
-2. **Lifting lemma (open; evidence and proof sketch).** For affine-linear systems, do
-   non-flat templates (rows x^t f, columns of degree ≥ 2) ever give smaller |G|? If not,
-   Theorem C1 holds for unrestricted MIN-ELIM.
+2. ~~**Lifting lemma**~~: **resolved by Theorem C2** (Lemma L gives the lifting directly).
+   Earlier evidence, kept for the record: for affine-linear systems, do non-flat templates
+   (rows x^t f, columns of degree ≥ 2) ever give smaller |G|?
 
    *Greedy evidence* (`lifting_test.py`). symgen's exact greedy search over degree-≤2
    column sets on 6 gadget instances never beat the flat optimum. It is inconclusive,
